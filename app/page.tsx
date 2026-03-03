@@ -1,5 +1,4 @@
 import PlazaClient from './components/PlazaClient';
-import Link from 'next/link';
 import { Radio, Video, Diamond } from 'lucide-react';
 import prisma from '@/app/lib/prisma';
 
@@ -29,17 +28,17 @@ export default async function Home() {
       </div>
 
       <div className="relative z-10">
-        {/* ═══ TopBar — compact, centered ═══ */}
-        <header className="flex items-center justify-center gap-4 px-4 py-2 bg-[#0d1220]/80 border-b border-border backdrop-blur-md">
-          <div className="flex items-center gap-2 text-sm">
+        {/* ═══ TopBar — wider spread, breathing room ═══ */}
+        <header className="flex items-center justify-between px-6 md:px-12 py-2.5 bg-[#0d1220]/80 border-b border-border backdrop-blur-md max-w-7xl mx-auto">
+          <div className="flex items-center gap-2.5 text-sm">
             <span className="flex items-center gap-1.5 text-red-400">
               <Radio className="w-3.5 h-3.5 animate-pulse" />
               <span className="font-medium">正在直播：</span>
             </span>
             <span className="text-muted-foreground">周末线上破壁集市大乱斗...</span>
           </div>
-          <a href="#" className="flex items-center gap-2 px-3 py-1 rounded-lg bg-[#1a2744] text-[#00d4aa] text-xs font-medium hover:bg-[#1e3050] transition-colors border border-[#1e3a5f]">
-            <Video className="w-3.5 h-3.5" />
+          <a href="#" className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-[#1a2744] text-[#00d4aa] text-sm font-medium hover:bg-[#1e3050] transition-colors border border-[#1e3a5f]">
+            <Video className="w-4 h-4" />
             进入会议室
           </a>
         </header>

@@ -87,53 +87,79 @@
   animation-play-state: paused;
 }
 
-/* ═══ Sci-Fi Card Glow ═══ */
+/* ═══════════════════════════════════════════
+   Sci-Fi Glass Card
+   ═══════════════════════════════════════════ */
 .sci-fi-card {
   position: relative;
-  background: rgba(17, 24, 39, 0.6);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(30, 58, 95, 0.6);
-  border-radius: 0.75rem;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Gradient: darker top → lighter translucent bottom */
+  background: linear-gradient(180deg,
+      rgba(17, 24, 39, 0.75) 0%,
+      rgba(30, 41, 59, 0.45) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  /* Visible gradient border via box-shadow trick */
+  border: 1px solid rgba(100, 160, 220, 0.2);
+  border-top-color: rgba(100, 160, 220, 0.35);
+  border-bottom-color: rgba(100, 160, 220, 0.08);
+  border-radius: 0.875rem;
+  transition: all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: visible;
+  /* Subtle inner top highlight for depth/3D */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
-/* The sci-fi afterglow "ghost" projection behind the card */
+/* The sci-fi afterglow "ghost" projection */
 .sci-fi-card::before {
   content: '';
   position: absolute;
-  inset: -4px;
+  inset: -6px;
   border-radius: inherit;
-  background: linear-gradient(135deg, rgba(0, 212, 170, 0), rgba(0, 119, 182, 0));
-  filter: blur(15px);
+  background: linear-gradient(135deg,
+      rgba(0, 212, 170, 0) 0%,
+      rgba(0, 119, 182, 0) 100%);
+  filter: blur(20px);
   opacity: 0;
   z-index: -1;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Hover state — card lifts, glows, afterimage projects */
 .sci-fi-card:hover {
-  border-color: rgba(0, 212, 170, 0.4);
-  background: rgba(17, 24, 39, 0.75);
-  transform: translateY(-6px) scale(1.02);
+  border-color: rgba(0, 212, 170, 0.45);
+  background: linear-gradient(180deg,
+      rgba(17, 24, 39, 0.85) 0%,
+      rgba(30, 58, 80, 0.55) 100%);
+  transform: translateY(-4px) scale(1.015);
   box-shadow:
-    0 0 30px rgba(0, 212, 170, 0.15),
-    0 0 60px rgba(0, 119, 182, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 25px rgba(0, 212, 170, 0.12),
+    0 0 50px rgba(0, 119, 182, 0.06),
+    0 8px 30px rgba(0, 0, 0, 0.4);
 }
 
 .sci-fi-card:hover::before {
   opacity: 1;
-  background: linear-gradient(135deg, rgba(0, 212, 170, 0.2), rgba(0, 119, 182, 0.15));
-  inset: -8px;
-  filter: blur(25px);
+  background: linear-gradient(135deg,
+      rgba(0, 212, 170, 0.25) 0%,
+      rgba(0, 180, 216, 0.15) 50%,
+      rgba(0, 119, 182, 0.2) 100%);
+  inset: -12px;
+  filter: blur(30px);
 }
 
-/* Featured card variant */
+/* Featured card */
 .sci-fi-card-featured {
-  background: linear-gradient(180deg, rgba(13, 40, 71, 0.7), rgba(17, 24, 39, 0.7));
-  border-color: rgba(0, 212, 170, 0.35);
-  box-shadow: 0 0 20px rgba(0, 212, 170, 0.08);
+  background: linear-gradient(180deg,
+      rgba(13, 40, 71, 0.8) 0%,
+      rgba(17, 24, 39, 0.55) 100%);
+  border-color: rgba(0, 212, 170, 0.3);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 15px rgba(0, 212, 170, 0.06),
+    0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 /* ═══ Scrollbar ═══ */

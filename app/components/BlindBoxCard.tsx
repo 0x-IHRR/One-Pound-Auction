@@ -1,6 +1,6 @@
 "use client";
 
-import { Flame, ShoppingCart } from "lucide-react";
+import { Flame, ShoppingCart, Lightbulb, Package, Wrench, Heart } from "lucide-react";
 
 export type BlindBoxData = {
     id: string;
@@ -19,33 +19,45 @@ interface BlindBoxCardProps {
     featured?: boolean;
 }
 
+// Smart category detection based on title/description keywords
+function detectCategory(box: BlindBoxData): { label: string; color: string; icon: typeof Flame } {
+    const text = (box.title + box.hook_description).toLowerCase();
+
+    if (box.itemType === 'WISH') {
+        return { label: '悬赏', color: 'bg-purple-500/15 text-purple-400 border-purple-500/25', icon: Heart };
+    }
+    if (text.includes('教程') || text.includes('课程') || text.includes('指南') || text.includes('手册') || text.includes('模板') || text.includes('公式')) {
+        return { label: '资源', color: 'bg-blue-500/15 text-blue-400 border-blue-500/25', icon: Package };
+    }
+    if (text.includes('帮') || text.includes('服务') || text.includes('简历') || text.includes('review') || text.includes('设计')) {
+        return { label: '服务', color: 'bg-orange-500/15 text-orange-400 border-orange-500/25', icon: Wrench };
+    }
+    return { label: 'Idea', color: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25', icon: Lightbulb };
+}
+
 export default function BlindBoxCard({ box, onClick, featured = false }: BlindBoxCardProps) {
-    const tagColor = box.itemType === 'WISH' ? 'pink' : 'orange';
-    const tagText = box.itemType === 'WISH' ? '✨ 悬赏许愿' : '🔥 资源出售';
+    const category = detectCategory(box);
+    const CategoryIcon = category.icon;
 
     return (
         <div
             onClick={() => onClick(box)}
-            className={`sci-fi-card flex flex-col p-4 cursor-pointer h-[220px] ${featured ? 'sci-fi-card-featured' : ''
+            className={`sci-fi-card flex flex-col p-5 cursor-pointer h-[230px] ${featured ? 'sci-fi-card-featured' : ''
                 }`}
         >
             {/* Tag + Price row */}
             <div className="flex items-center justify-between mb-3">
-                <span
-                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium ${tagColor === 'pink'
-                            ? 'bg-pink-500/10 text-pink-400 border border-pink-500/20'
-                            : 'bg-orange-500/10 text-orange-400 border border-orange-500/20'
-                        }`}
-                >
-                    {tagText}
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold border ${category.color}`}>
+                    <CategoryIcon className="w-3 h-3" />
+                    {category.label}
                 </span>
-                <span className="text-[#00d4aa] font-bold text-sm">
+                <span className="text-[#00d4aa] font-bold text-sm tabular-nums">
                     ¥{box.price.toFixed(2)}
                 </span>
             </div>
 
             {/* Title */}
-            <h3 className="text-[15px] font-semibold text-foreground mb-2 line-clamp-2 leading-snug">
+            <h3 className="text-[15px] font-semibold text-foreground mb-2 line-clamp-2 leading-snug tracking-tight">
                 {box.title}
             </h3>
 
@@ -55,12 +67,12 @@ export default function BlindBoxCard({ box, onClick, featured = false }: BlindBo
             </p>
 
             {/* Footer */}
-            <div className="flex items-center justify-between mt-auto pt-2.5 border-t border-[#1e3a5f]/50">
-                <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+            <div className="flex items-center justify-between mt-auto pt-2.5 border-t border-[#1e3a5f]/40">
+                <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
                     <Flame className="w-3 h-3 text-orange-400" />
                     已有 {box.sales_count} 人揭榜/购买
                 </div>
-                <button className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#00d4aa]/10 text-[#00d4aa] text-[11px] font-medium hover:bg-[#00d4aa]/20 transition-colors">
+                <button className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#00d4aa]/10 text-[#00d4aa] text-[11px] font-medium hover:bg-[#00d4aa]/25 transition-colors border border-[#00d4aa]/15">
                     <ShoppingCart className="w-3 h-3" />
                     购买
                 </button>

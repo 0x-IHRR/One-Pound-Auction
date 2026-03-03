@@ -13,23 +13,22 @@ function CardCarouselRow({ boxes, speed, reverse, onBoxClick }: {
     reverse?: boolean;
     onBoxClick: (box: BlindBoxData) => void;
 }) {
-    // Duplicate for seamless infinite scroll
     const items = [...boxes, ...boxes];
 
     return (
-        <div className="relative overflow-hidden py-3">
-            {/* Wide edge fade masks for the "slide in/out" effect */}
-            <div className="absolute left-0 top-0 bottom-0 w-[12%] bg-gradient-to-r from-[#0a0e1a] via-[#0a0e1a]/80 to-transparent z-10 pointer-events-none" />
-            <div className="absolute right-0 top-0 bottom-0 w-[12%] bg-gradient-to-l from-[#0a0e1a] via-[#0a0e1a]/80 to-transparent z-10 pointer-events-none" />
+        <div className="relative overflow-hidden py-2">
+            {/* Wide edge fade masks */}
+            <div className="absolute left-0 top-0 bottom-0 w-[14%] bg-gradient-to-r from-[#0a0e1a] via-[#0a0e1a]/80 to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-[14%] bg-gradient-to-l from-[#0a0e1a] via-[#0a0e1a]/80 to-transparent z-10 pointer-events-none" />
 
             <div
-                className="flex gap-5 w-max hover:[animation-play-state:paused]"
+                className="flex gap-7 w-max hover:[animation-play-state:paused]"
                 style={{
                     animation: `carousel-scroll ${speed}s linear infinite${reverse ? ' reverse' : ''}`,
                 }}
             >
                 {items.map((box, i) => (
-                    <div key={`${box.id}-${i}`} className="w-[300px] shrink-0">
+                    <div key={`${box.id}-${i}`} className="w-[290px] shrink-0">
                         <BlindBoxCard
                             box={box}
                             onClick={onBoxClick}
@@ -70,17 +69,15 @@ export default function PlazaClient({ initialBoxes }: { initialBoxes: BlindBoxDa
 
     const filteredBoxes = boxes.filter(box => (box.itemType || 'OFFER') === activeTab);
 
-    // Split cards into rows (4 per row)
+    // Split into rows of 4
     const rows: BlindBoxData[][] = [];
     for (let i = 0; i < filteredBoxes.length; i += 4) {
         rows.push(filteredBoxes.slice(i, i + 4));
     }
-    // Ensure at least some cards per row for the carousel effect
-    // If a row has < 3 cards, pad with items from the front
+    // Pad short rows
     const paddedRows = rows.map(row => {
         if (row.length < 3 && filteredBoxes.length >= 3) {
-            const needed = 3 - row.length;
-            return [...row, ...filteredBoxes.slice(0, needed)];
+            return [...row, ...filteredBoxes.slice(0, 3 - row.length)];
         }
         return row;
     });
@@ -120,8 +117,8 @@ export default function PlazaClient({ initialBoxes }: { initialBoxes: BlindBoxDa
                 </Link>
             </div>
 
-            {/* ═══ Multi-Row Card Carousel ═══ */}
-            <div className="pb-16 space-y-2">
+            {/* ═══ Multi-Row Card Carousel — more vertical spacing ═══ */}
+            <div className="pb-16 space-y-6">
                 {paddedRows.length > 0 ? (
                     paddedRows.map((row, rowIdx) => (
                         <CardCarouselRow
