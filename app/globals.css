@@ -53,7 +53,7 @@
   }
 }
 
-/* Ticker / Marquee */
+/* ═══ Activity Ticker ═══ */
 @keyframes ticker-scroll {
   0% {
     transform: translateX(0);
@@ -65,27 +65,78 @@
 }
 
 .animate-ticker {
-  animation: ticker-scroll 30s linear infinite;
+  animation: ticker-scroll 25s linear infinite;
 }
 
-/* Card glow on hover */
-@keyframes glow-pulse {
+/* ═══ Card Carousel ═══ */
+@keyframes carousel-scroll {
+  0% {
+    transform: translateX(0);
+  }
 
-  0%,
   100% {
-    box-shadow: 0 0 20px rgba(0, 212, 170, 0.1);
-  }
-
-  50% {
-    box-shadow: 0 0 30px rgba(0, 212, 170, 0.2);
+    transform: translateX(-50%);
   }
 }
 
-.card-glow:hover {
-  animation: glow-pulse 2s ease-in-out infinite;
+.animate-carousel {
+  animation: carousel-scroll 40s linear infinite;
 }
 
-/* Scrollbar styling */
+.animate-carousel:hover {
+  animation-play-state: paused;
+}
+
+/* ═══ Sci-Fi Card Glow ═══ */
+.sci-fi-card {
+  position: relative;
+  background: rgba(17, 24, 39, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(30, 58, 95, 0.6);
+  border-radius: 0.75rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: visible;
+}
+
+/* The sci-fi afterglow "ghost" projection behind the card */
+.sci-fi-card::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(0, 212, 170, 0), rgba(0, 119, 182, 0));
+  filter: blur(15px);
+  opacity: 0;
+  z-index: -1;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sci-fi-card:hover {
+  border-color: rgba(0, 212, 170, 0.4);
+  background: rgba(17, 24, 39, 0.75);
+  transform: translateY(-6px) scale(1.02);
+  box-shadow:
+    0 0 30px rgba(0, 212, 170, 0.15),
+    0 0 60px rgba(0, 119, 182, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.sci-fi-card:hover::before {
+  opacity: 1;
+  background: linear-gradient(135deg, rgba(0, 212, 170, 0.2), rgba(0, 119, 182, 0.15));
+  inset: -8px;
+  filter: blur(25px);
+}
+
+/* Featured card variant */
+.sci-fi-card-featured {
+  background: linear-gradient(180deg, rgba(13, 40, 71, 0.7), rgba(17, 24, 39, 0.7));
+  border-color: rgba(0, 212, 170, 0.35);
+  box-shadow: 0 0 20px rgba(0, 212, 170, 0.08);
+}
+
+/* ═══ Scrollbar ═══ */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -104,7 +155,6 @@
   background: #2d4a6f;
 }
 
-/* Hide scrollbar utility */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
