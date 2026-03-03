@@ -10,6 +10,7 @@ export default function CreatorPage() {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({
+        itemType: 'OFFER', // 'OFFER' or 'WISH'
         title: '',
         hook_description: '',
         hidden_content: '',
@@ -57,10 +58,37 @@ export default function CreatorPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="glass-panel p-8 md:p-10"
             >
-                <h1 className="text-3xl font-bold mb-2">发布新盲盒</h1>
-                <p className="text-slate-400 mb-8">
-                    把你的好点子、经验资料、或者小服务，1块钱挂上去验证一下行情！
+                <h1 className="text-3xl font-bold mb-2">发布新盲盒 / 许愿</h1>
+                <p className="text-slate-400 mb-6">
+                    挂个小卖铺，或者向全宇宙发个高悬赏的愿望。
                 </p>
+
+                {/* Animated Segmented Control */}
+                <div className="flex bg-slate-800/80 p-1 rounded-xl mb-8 relative border border-slate-700/50 backdrop-blur-md">
+                    <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, itemType: 'OFFER' })}
+                        className={`flex-1 py-2.5 text-sm font-medium rounded-lg z-10 transition-colors ${formData.itemType === 'OFFER' ? 'text-white' : 'text-slate-400 hover:text-slate-200'}`}
+                    >
+                        🛍️ 我要摆摊 (出售/换物)
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, itemType: 'WISH' })}
+                        className={`flex-1 py-2.5 text-sm font-medium rounded-lg z-10 transition-colors ${formData.itemType === 'WISH' ? 'text-white' : 'text-slate-400 hover:text-slate-200'}`}
+                    >
+                        ⛲️ 我要许愿 (悬赏/求助)
+                    </button>
+                    <motion.div
+                        className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-blue-600 rounded-lg shadow-sm"
+                        initial={false}
+                        animate={{
+                            left: formData.itemType === 'OFFER' ? '4px' : 'calc(50%)'
+                        }}
+                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        style={{ zIndex: 0 }}
+                    />
+                </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>

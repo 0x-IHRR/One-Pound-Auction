@@ -16,7 +16,7 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const json = await request.json();
-        const { title, hook_description, hidden_content, price } = json;
+        const { title, hook_description, hidden_content, price, itemType, accepts_barter, barter_demand } = json;
 
         const newBox = await prisma.auctionItem.create({
             data: {
@@ -24,6 +24,9 @@ export async function POST(request: Request) {
                 hook_description,
                 hidden_content,
                 price: price || 1.0,
+                itemType: itemType || 'OFFER',
+                accepts_barter: accepts_barter || false,
+                barter_demand: barter_demand || null,
             }
         });
 

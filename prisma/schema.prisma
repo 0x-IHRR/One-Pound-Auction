@@ -9,6 +9,7 @@ datasource db {
 
 model AuctionItem {
   id               String   @id @default(cuid())
+  itemType         String   @default("OFFER") // "OFFER" or "WISH"
   title            String
   hook_description String
   hidden_content   String
@@ -19,5 +20,11 @@ model AuctionItem {
   barter_demand    String?  
   
   sales_count      Int      @default(0)
+  createdAt        DateTime @default(now())
+}
+
+model ActivityLog {
+  id               String   @id @default(cuid())
+  message          String   // e.g. "User just unlocked 'Notion Template'"
   createdAt        DateTime @default(now())
 }
