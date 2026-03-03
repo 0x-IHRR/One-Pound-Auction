@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model AuctionItem {
+  id               String   @id @default(cuid())
+  title            String
+  hook_description String
+  hidden_content   String
+  price            Float    @default(1.0)
+  
+  // Barter options
+  accepts_barter   Boolean  @default(false)
+  barter_demand    String?  
+  
+  sales_count      Int      @default(0)
+  createdAt        DateTime @default(now())
+}
