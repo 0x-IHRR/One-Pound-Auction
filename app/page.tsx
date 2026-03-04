@@ -28,19 +28,29 @@ export default async function Home() {
       </div>
 
       <div className="relative z-10">
-        {/* ═══ TopBar — wider spread, breathing room ═══ */}
-        <header className="flex items-center justify-between px-6 md:px-12 py-2.5 bg-[#0d1220]/80 border-b border-border backdrop-blur-md max-w-7xl mx-auto">
-          <div className="flex items-center gap-2.5 text-sm">
+        {/* ═══ TopBar — 3 column spread layout ═══ */}
+        <header className="grid grid-cols-2 md:grid-cols-3 items-center px-6 md:px-12 py-2.5 bg-[#0d1220]/80 border-b border-border backdrop-blur-md max-w-7xl mx-auto">
+          {/* Left: Logo */}
+          <div className="flex justify-start items-center">
+            <img src="/logo/logo_compact.png" alt="一元破壁集市 Logo" className="h-[30px] w-auto object-contain opacity-90 hover:opacity-100 transition-opacity" />
+          </div>
+
+          {/* Center: Live Indicator (hidden on small screens) */}
+          <div className="hidden md:flex justify-center items-center gap-2.5 text-sm">
             <span className="flex items-center gap-1.5 text-red-400">
               <Radio className="w-3.5 h-3.5 animate-pulse" />
               <span className="font-medium">正在直播：</span>
             </span>
-            <span className="text-muted-foreground">周末线上破壁集市大乱斗...</span>
+            <span className="text-muted-foreground whitespace-nowrap">周末线上破壁集市大乱斗...</span>
           </div>
-          <a href="#" className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-[#1a2744] text-[#00d4aa] text-sm font-medium hover:bg-[#1e3050] transition-colors border border-[#1e3a5f]">
-            <Video className="w-4 h-4" />
-            进入会议室
-          </a>
+
+          {/* Right: Meeting Button */}
+          <div className="flex justify-end">
+            <a href="#" className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-[#1a2744] text-[#00d4aa] text-sm font-medium hover:bg-[#1e3050] transition-colors border border-[#1e3a5f]">
+              <Video className="w-4 h-4" />
+              进入会议室
+            </a>
+          </div>
         </header>
 
         <main>
