@@ -1,5 +1,5 @@
 import PlazaClient from './components/PlazaClient';
-import { Radio, Video, Diamond } from 'lucide-react';
+import { Radio, Video, Diamond, Search } from 'lucide-react';
 import prisma from '@/app/lib/prisma';
 
 export const dynamic = 'force-dynamic';
@@ -28,25 +28,41 @@ export default async function Home() {
       </div>
 
       <div className="relative z-10">
-        {/* ═══ TopBar — Full width spread layout ═══ */}
-        <header className="grid grid-cols-2 md:grid-cols-3 items-center px-4 md:px-8 py-1.5 bg-[#0d1220]/80 border-b border-border backdrop-blur-md w-full">
+        {/* ═══ TopBar — Fixed Height Layout ═══ */}
+        <header className="h-[60px] flex items-center justify-between px-4 md:px-8 bg-[#0d1220]/80 border-b border-white/5 backdrop-blur-md w-full shrink-0">
           {/* Left: Logo */}
-          <div className="flex justify-start items-center">
-            <img src="/logo/logo.png" alt="一元破壁集市 Logo" className="h-16 md:h-[72px] w-auto object-contain opacity-90 hover:opacity-100 transition-[transform,opacity] hover:scale-105 origin-left -ml-2" />
+          <div className="flex items-center w-[200px] md:w-[320px] h-full py-2">
+            <img src="/logo/logo_cropped.png" alt="一元破壁集市 Logo" className="h-full w-auto object-contain opacity-90 hover:opacity-100 transition-all hover:scale-105 origin-left" />
           </div>
 
-          {/* Center: Live Indicator (hidden on small screens) */}
-          <div className="hidden md:flex justify-center items-center gap-2.5 text-sm">
-            <span className="flex items-center gap-1.5 text-red-400">
-              <Radio className="w-3.5 h-3.5 animate-pulse" />
-              <span className="font-medium">正在直播：</span>
-            </span>
-            <span className="text-muted-foreground whitespace-nowrap">周末线上破壁集市大乱斗...</span>
+          {/* Center: Search Bar */}
+          <div className="hidden md:flex flex-1 max-w-xl mx-4">
+            <div className="relative w-full group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Search className="h-4 w-4 text-muted-foreground group-focus-within:text-[#00d4aa] transition-colors" />
+              </div>
+              <input
+                type="text"
+                className="block w-full pl-11 pr-12 py-2 border border-white/5 rounded-full leading-5 bg-white/5 text-slate-200 placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-[#00d4aa]/50 focus:border-[#00d4aa]/50 focus:bg-[#0a0f1c]/80 sm:text-sm transition-all shadow-inner"
+                placeholder="搜索创意、资源、服务或者悬赏内容..."
+              />
+              <div className="absolute inset-y-0 right-0 pr-2 flex items-center">
+                <kbd className="hidden lg:inline-flex items-center border border-white/10 rounded px-2 py-0.5 text-[10px] font-medium text-muted-foreground bg-white/5 uppercase">⌘ K</kbd>
+              </div>
+            </div>
           </div>
 
-          {/* Right: Meeting Button */}
-          <div className="flex justify-end">
-            <a href="#" className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-[#1a2744] text-[#00d4aa] text-sm font-medium hover:bg-[#1e3050] transition-colors border border-[#1e3a5f] whitespace-nowrap">
+          {/* Right: Live Indicator + Meeting Button */}
+          <div className="flex items-center justify-end w-[200px] md:w-[320px] gap-6">
+            <div className="hidden lg:flex items-center gap-2 text-sm">
+              <span className="flex items-center gap-1.5 text-red-500">
+                <Radio className="w-3.5 h-3.5 animate-pulse" />
+                <span className="font-medium text-[13px]">正在直播</span>
+              </span>
+              <span className="text-muted-foreground/80 max-w-[120px] truncate text-[13px]" title="周末线上破壁集市大乱斗...">周末集市大乱斗...</span>
+            </div>
+
+            <a href="#" className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#00d4aa]/10 text-[#00d4aa] text-sm font-medium hover:bg-[#00d4aa]/20 transition-all border border-[#00d4aa]/30 whitespace-nowrap shadow-[0_0_15px_rgba(0,212,170,0.1)]">
               <Video className="w-4 h-4 shrink-0" />
               进入拍卖场
             </a>
