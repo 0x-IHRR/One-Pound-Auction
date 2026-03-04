@@ -29,15 +29,15 @@ export default async function Home() {
 
       <div className="relative z-10">
         {/* ═══ TopBar — Fixed Height Layout ═══ */}
-        <header className="h-[64px] flex items-center justify-between px-4 md:px-8 bg-[#0d1220]/80 border-b border-white/5 backdrop-blur-md w-full shrink-0 gap-4">
+        <header className="relative h-[64px] flex items-center justify-between px-4 md:px-8 bg-[#0d1220]/80 border-b border-white/5 backdrop-blur-md w-full shrink-0 gap-4">
           {/* Left: Logo */}
-          <div className="flex items-center shrink-0">
+          <div className="flex items-center shrink-0 z-20">
             <img src="/logo/logo_cropped.png" alt="一元破壁集市 Logo" className="h-10 md:h-[42px] w-auto object-contain opacity-90 hover:opacity-100 transition-all hover:scale-105 origin-left" />
           </div>
 
           {/* Center: Search Bar */}
-          <div className="hidden md:flex flex-1 justify-center">
-            <div className="relative w-full max-w-md group">
+          <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 w-full max-w-md z-10 px-4">
+            <div className="relative w-full group">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Search className="h-4 w-4 text-muted-foreground group-focus-within:text-[#00d4aa] transition-colors" />
               </div>
@@ -53,7 +53,7 @@ export default async function Home() {
           </div>
 
           {/* Right: Live Indicator + Meeting Button */}
-          <div className="flex items-center justify-end shrink-0 gap-3 md:gap-5">
+          <div className="flex items-center justify-end shrink-0 gap-3 md:gap-5 z-20">
             <div className="hidden lg:flex items-center gap-2 text-sm whitespace-nowrap">
               <span className="flex items-center gap-1.5 text-red-500 shrink-0">
                 <Radio className="w-3.5 h-3.5 animate-pulse" />
@@ -62,9 +62,8 @@ export default async function Home() {
               <span className="text-muted-foreground/80 truncate text-[13px] max-w-[140px]" title="周末线上破壁集市大乱斗...">周末集市大乱斗...</span>
             </div>
 
-            <a href="#" className="flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-full bg-[#00d4aa]/10 text-[#00d4aa] text-sm font-medium hover:bg-[#00d4aa]/20 transition-all border border-[#00d4aa]/30 whitespace-nowrap shadow-[0_0_15px_rgba(0,212,170,0.1)] shrink-0">
-              <Video className="w-4 h-4 shrink-0" />
-              进入拍卖场
+            <a href="#" className="flex items-center justify-center p-2 rounded-full bg-[#00d4aa]/10 text-[#00d4aa] hover:bg-[#00d4aa]/20 transition-all border border-[#00d4aa]/30 shadow-[0_0_15px_rgba(0,212,170,0.1)] shrink-0" title="进入拍卖场">
+              <Video className="w-[18px] h-[18px] shrink-0" />
             </a>
           </div>
         </header>
