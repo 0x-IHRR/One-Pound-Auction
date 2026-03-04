@@ -53,16 +53,16 @@ export default async function Home() {
           </div>
 
           {/* Right: Live Indicator + Meeting Button */}
-          <div className="flex items-center justify-end w-[200px] md:w-[320px] gap-6">
-            <div className="hidden lg:flex items-center gap-2 text-sm">
-              <span className="flex items-center gap-1.5 text-red-500">
+          <div className="flex items-center justify-end w-auto min-w-[280px] shrink-0 gap-4 md:gap-6 pl-2">
+            <div className="hidden lg:flex items-center gap-2 text-sm whitespace-nowrap">
+              <span className="flex items-center gap-1.5 text-red-500 shrink-0">
                 <Radio className="w-3.5 h-3.5 animate-pulse" />
                 <span className="font-medium text-[13px]">正在直播</span>
               </span>
-              <span className="text-muted-foreground/80 max-w-[120px] truncate text-[13px]" title="周末线上破壁集市大乱斗...">周末集市大乱斗...</span>
+              <span className="text-muted-foreground/80 truncate text-[13px] max-w-[150px]" title="周末线上破壁集市大乱斗...">周末集市大乱斗...</span>
             </div>
 
-            <a href="#" className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#00d4aa]/10 text-[#00d4aa] text-sm font-medium hover:bg-[#00d4aa]/20 transition-all border border-[#00d4aa]/30 whitespace-nowrap shadow-[0_0_15px_rgba(0,212,170,0.1)]">
+            <a href="#" className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#00d4aa]/10 text-[#00d4aa] text-sm font-medium hover:bg-[#00d4aa]/20 transition-all border border-[#00d4aa]/30 whitespace-nowrap shadow-[0_0_15px_rgba(0,212,170,0.1)] shrink-0">
               <Video className="w-4 h-4 shrink-0" />
               进入拍卖场
             </a>
