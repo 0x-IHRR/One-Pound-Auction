@@ -28,11 +28,11 @@ export default async function Home() {
       </div>
 
       <div className="relative z-10">
-        {/* ═══ TopBar — 3 column spread layout ═══ */}
-        <header className="grid grid-cols-2 md:grid-cols-3 items-center px-6 md:px-12 py-2.5 bg-[#0d1220]/80 border-b border-border backdrop-blur-md max-w-7xl mx-auto">
+        {/* ═══ TopBar — Full width spread layout ═══ */}
+        <header className="grid grid-cols-2 md:grid-cols-3 items-center px-6 md:px-12 py-3 bg-[#0d1220]/80 border-b border-border backdrop-blur-md w-full">
           {/* Left: Logo */}
           <div className="flex justify-start items-center">
-            <img src="/logo/logo_compact.png" alt="一元破壁集市 Logo" className="h-[30px] w-auto object-contain opacity-90 hover:opacity-100 transition-opacity" />
+            <img src="/logo/logo.png" alt="一元破壁集市 Logo" className="h-10 md:h-12 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity" />
           </div>
 
           {/* Center: Live Indicator (hidden on small screens) */}
@@ -48,7 +48,7 @@ export default async function Home() {
           <div className="flex justify-end">
             <a href="#" className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-[#1a2744] text-[#00d4aa] text-sm font-medium hover:bg-[#1e3050] transition-colors border border-[#1e3a5f]">
               <Video className="w-4 h-4" />
-              进入会议室
+              进入拍卖场
             </a>
           </div>
         </header>

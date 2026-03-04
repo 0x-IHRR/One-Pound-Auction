@@ -16,13 +16,13 @@ function CardCarouselRow({ boxes, speed, reverse, onBoxClick }: {
     const items = [...boxes, ...boxes];
 
     return (
-        <div className="relative overflow-hidden py-2">
+        <div className="relative overflow-hidden py-2 group">
             {/* Wide edge fade masks */}
             <div className="absolute left-0 top-0 bottom-0 w-[14%] bg-gradient-to-r from-[#0a0e1a] via-[#0a0e1a]/80 to-transparent z-10 pointer-events-none" />
             <div className="absolute right-0 top-0 bottom-0 w-[14%] bg-gradient-to-l from-[#0a0e1a] via-[#0a0e1a]/80 to-transparent z-10 pointer-events-none" />
 
             <div
-                className="flex gap-7 w-max hover:[animation-play-state:paused]"
+                className="flex gap-7 w-max group-hover:[animation-play-state:paused]"
                 style={{
                     animation: `carousel-scroll ${speed}s linear infinite${reverse ? ' reverse' : ''}`,
                 }}
@@ -90,8 +90,8 @@ export default function PlazaClient({ initialBoxes }: { initialBoxes: BlindBoxDa
                     <button
                         onClick={() => setActiveTab('OFFER')}
                         className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all ${activeTab === 'OFFER'
-                                ? 'bg-[#00d4aa] text-[#0a0e1a] shadow-lg shadow-[#00d4aa]/20'
-                                : 'text-muted-foreground hover:text-foreground'
+                            ? 'bg-[#00d4aa] text-[#0a0e1a] shadow-lg shadow-[#00d4aa]/20'
+                            : 'text-muted-foreground hover:text-foreground'
                             }`}
                     >
                         <Store className="w-4 h-4" />
@@ -100,8 +100,8 @@ export default function PlazaClient({ initialBoxes }: { initialBoxes: BlindBoxDa
                     <button
                         onClick={() => setActiveTab('WISH')}
                         className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all ${activeTab === 'WISH'
-                                ? 'bg-[#00d4aa] text-[#0a0e1a] shadow-lg shadow-[#00d4aa]/20'
-                                : 'text-muted-foreground hover:text-foreground'
+                            ? 'bg-[#00d4aa] text-[#0a0e1a] shadow-lg shadow-[#00d4aa]/20'
+                            : 'text-muted-foreground hover:text-foreground'
                             }`}
                     >
                         <Sparkles className="w-4 h-4" />
