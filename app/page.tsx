@@ -29,22 +29,22 @@ export default async function Home() {
 
       <div className="relative z-10">
         {/* ═══ TopBar — Fixed Height Layout ═══ */}
-        <header className="h-[60px] flex items-center justify-between px-4 md:px-8 bg-[#0d1220]/80 border-b border-white/5 backdrop-blur-md w-full shrink-0">
+        <header className="h-[64px] flex items-center justify-between px-4 md:px-8 bg-[#0d1220]/80 border-b border-white/5 backdrop-blur-md w-full shrink-0 gap-4">
           {/* Left: Logo */}
-          <div className="flex items-center w-[200px] md:w-[320px] h-full py-2">
-            <img src="/logo/logo_cropped.png" alt="一元破壁集市 Logo" className="h-full w-auto object-contain opacity-90 hover:opacity-100 transition-all hover:scale-105 origin-left" />
+          <div className="flex items-center shrink-0">
+            <img src="/logo/logo_cropped.png" alt="一元破壁集市 Logo" className="h-10 md:h-[42px] w-auto object-contain opacity-90 hover:opacity-100 transition-all hover:scale-105 origin-left" />
           </div>
 
           {/* Center: Search Bar */}
-          <div className="hidden md:flex flex-1 max-w-xl mx-4">
-            <div className="relative w-full group">
+          <div className="hidden md:flex flex-1 justify-center">
+            <div className="relative w-full max-w-md group">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Search className="h-4 w-4 text-muted-foreground group-focus-within:text-[#00d4aa] transition-colors" />
               </div>
               <input
                 type="text"
                 className="block w-full pl-11 pr-12 py-2 border border-white/5 rounded-full leading-5 bg-white/5 text-slate-200 placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-[#00d4aa]/50 focus:border-[#00d4aa]/50 focus:bg-[#0a0f1c]/80 sm:text-sm transition-all shadow-inner"
-                placeholder="搜索创意、资源、服务或者悬赏内容..."
+                placeholder="搜索创意、资源、服务或者悬赏..."
               />
               <div className="absolute inset-y-0 right-0 pr-2 flex items-center">
                 <kbd className="hidden lg:inline-flex items-center border border-white/10 rounded px-2 py-0.5 text-[10px] font-medium text-muted-foreground bg-white/5 uppercase">⌘ K</kbd>
@@ -53,16 +53,16 @@ export default async function Home() {
           </div>
 
           {/* Right: Live Indicator + Meeting Button */}
-          <div className="flex items-center justify-end w-auto min-w-[280px] shrink-0 gap-4 md:gap-6 pl-2">
+          <div className="flex items-center justify-end shrink-0 gap-3 md:gap-5">
             <div className="hidden lg:flex items-center gap-2 text-sm whitespace-nowrap">
               <span className="flex items-center gap-1.5 text-red-500 shrink-0">
                 <Radio className="w-3.5 h-3.5 animate-pulse" />
                 <span className="font-medium text-[13px]">正在直播</span>
               </span>
-              <span className="text-muted-foreground/80 truncate text-[13px] max-w-[150px]" title="周末线上破壁集市大乱斗...">周末集市大乱斗...</span>
+              <span className="text-muted-foreground/80 truncate text-[13px] max-w-[140px]" title="周末线上破壁集市大乱斗...">周末集市大乱斗...</span>
             </div>
 
-            <a href="#" className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#00d4aa]/10 text-[#00d4aa] text-sm font-medium hover:bg-[#00d4aa]/20 transition-all border border-[#00d4aa]/30 whitespace-nowrap shadow-[0_0_15px_rgba(0,212,170,0.1)] shrink-0">
+            <a href="#" className="flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-full bg-[#00d4aa]/10 text-[#00d4aa] text-sm font-medium hover:bg-[#00d4aa]/20 transition-all border border-[#00d4aa]/30 whitespace-nowrap shadow-[0_0_15px_rgba(0,212,170,0.1)] shrink-0">
               <Video className="w-4 h-4 shrink-0" />
               进入拍卖场
             </a>
