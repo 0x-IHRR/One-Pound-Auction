@@ -14,21 +14,27 @@ function CardCarouselRow({ boxes, speed, reverse, onBoxClick }: {
     onBoxClick: (box: BlindBoxData) => void;
 }) {
     const items = [...boxes, ...boxes];
+    const [isHovered, setIsHovered] = useState(false);
 
     return (
-        <div className="relative overflow-hidden py-2 group">
+        <div
+            className="relative overflow-hidden py-2"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
             {/* Wide edge fade masks */}
             <div className="absolute left-0 top-0 bottom-0 w-[14%] bg-gradient-to-r from-[#0a0e1a] via-[#0a0e1a]/80 to-transparent z-10 pointer-events-none" />
             <div className="absolute right-0 top-0 bottom-0 w-[14%] bg-gradient-to-l from-[#0a0e1a] via-[#0a0e1a]/80 to-transparent z-10 pointer-events-none" />
 
             <div
-                className="flex gap-7 w-max group-hover:[animation-play-state:paused]"
+                className="flex gap-7 w-max"
                 style={{
                     animationName: 'carousel-scroll',
                     animationDuration: `${speed}s`,
                     animationTimingFunction: 'linear',
                     animationIterationCount: 'infinite',
                     animationDirection: reverse ? 'reverse' : 'normal',
+                    animationPlayState: isHovered ? 'paused' : 'running'
                 }}
             >
                 {items.map((box, i) => (
