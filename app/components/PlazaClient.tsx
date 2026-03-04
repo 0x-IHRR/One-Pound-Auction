@@ -24,7 +24,11 @@ function CardCarouselRow({ boxes, speed, reverse, onBoxClick }: {
             <div
                 className="flex gap-7 w-max group-hover:[animation-play-state:paused]"
                 style={{
-                    animation: `carousel-scroll ${speed}s linear infinite${reverse ? ' reverse' : ''}`,
+                    animationName: 'carousel-scroll',
+                    animationDuration: `${speed}s`,
+                    animationTimingFunction: 'linear',
+                    animationIterationCount: 'infinite',
+                    animationDirection: reverse ? 'reverse' : 'normal',
                 }}
             >
                 {items.map((box, i) => (
