@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/app/lib/prisma';
+import { isAuthGuardError, requireUser } from '@/app/lib/auth/guards';
 
 export async function GET() {
     try {
@@ -15,6 +16,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
     try {
+        await requireUser();
         const json = await request.json();
         const { title, hook_description, hidden_content, price, itemType, accepts_barter, barter_demand } = json;
 
@@ -32,6 +34,10 @@ export async function POST(request: Request) {
 
         return NextResponse.json(newBox, { status: 201 });
     } catch (error) {
+        if (isAuthGuardError(error)) {
+            return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+        }
+
         console.error('Failed to create box:', error);
         return NextResponse.json({ error: 'Failed to create box' }, { status: 500 });
     }

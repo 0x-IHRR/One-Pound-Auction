@@ -1,4 +1,5 @@
 import PlazaClient from './components/PlazaClient';
+import AuthNav from './components/auth/AuthNav';
 import { Radio, Video, Diamond, Search } from 'lucide-react';
 import prisma from '@/app/lib/prisma';
 
@@ -65,6 +66,8 @@ export default async function Home() {
             <a href="#" className="flex items-center justify-center p-2 rounded-full bg-[#00d4aa]/10 text-[#00d4aa] hover:bg-[#00d4aa]/20 transition-all border border-[#00d4aa]/30 shadow-[0_0_15px_rgba(0,212,170,0.1)] shrink-0" title="进入拍卖场">
               <Video className="w-[18px] h-[18px] shrink-0" />
             </a>
+
+            <AuthNav />
           </div>
         </header>
 
