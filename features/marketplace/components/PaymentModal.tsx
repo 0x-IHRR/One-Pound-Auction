@@ -1,9 +1,13 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { X, QrCode, ShieldCheck, Loader2 } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Loader2, QrCode, ShieldCheck, X } from "lucide-react";
 import { useState } from "react";
-import { BlindBoxData } from "./BlindBoxCard";
+
+import type { BlindBoxData } from '@/features/marketplace/components/BlindBoxCard';
+import type { PurchaseBoxResult } from '@/features/marketplace/types/box';
+import type { ApiFailure, ApiSuccess } from '@/shared/http';
+import { getApiErrorMessage } from '@/shared/utils/get-api-error-message';
 
 interface PaymentModalProps {
     isOpen: boolean;
@@ -21,25 +25,23 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, box }: Paymen
         setIsProcessing(true);
 
         try {
-            // Create a mock artificial delay for payment processing
             await new Promise(resolve => setTimeout(resolve, 2000));
 
-            // Call our API to increment sales and get the content
             const res = await fetch(`/api/boxes/${box.id}/purchase`, {
                 method: 'POST',
             });
+            const payload = await res.json() as ApiSuccess<PurchaseBoxResult> | ApiFailure;
 
-            if (res.ok) {
-                const data = await res.json();
+            if (res.ok && payload.success) {
                 setIsProcessing(false);
-                onSuccess(data.hidden_content);
+                onSuccess(payload.data.hidden_content);
             } else {
-                throw new Error("Payment failed");
+                throw new Error(getApiErrorMessage(payload, '支付失败，请重试。'));
             }
         } catch (error) {
             console.error(error);
             setIsProcessing(false);
-            alert("支付模拟失败，请重试。");
+            alert(error instanceof Error ? error.message : '支付模拟失败，请重试。');
         }
     };
 
@@ -47,7 +49,6 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, box }: Paymen
         <AnimatePresence>
             {isOpen && (
                 <>
-                    {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -56,7 +57,6 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, box }: Paymen
                         className="fixed inset-0 bg-[#0d1220]/80 backdrop-blur-md z-40"
                     />
 
-                    {/* Modal */}
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -64,7 +64,6 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, box }: Paymen
                         className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm z-50 p-6"
                     >
                         <div className="relative bg-[#111827] border border-[#1e3a5f] shadow-[0_0_30px_rgba(0,212,170,0.1)] rounded-2xl p-6 overflow-hidden">
-                            {/* Decorative ambient glow */}
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[100px] bg-[#00d4aa]/5 blur-[50px] pointer-events-none" />
 
                             {!isProcessing && (
@@ -96,7 +95,6 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, box }: Paymen
                                 ) : (
                                     <>
                                         <div className="bg-white/90 p-2 rounded-lg mb-4 ring-1 ring-white/20">
-                                            {/* Placeholder for real QR Code later */}
                                             <QrCode className="w-32 h-32 text-slate-900" />
                                         </div>
                                         <div className="flex items-center text-xs text-[#00d4aa]/80">
@@ -119,16 +117,16 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, box }: Paymen
                                 disabled={isProcessing}
                                 className="relative z-10 w-full py-4 rounded-xl bg-[#00d4aa]/10 hover:bg-[#00d4aa]/20 text-[#00d4aa] border border-[#00d4aa]/30 font-bold text-lg shadow-[0_0_15px_rgba(0,212,170,0.1)] transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                             >
-                                {isProcessing ? "建立连接中..." : "支付 1 元解锁内容"}
+                                {isProcessing ? '建立连接中...' : '支付 1 元解锁内容'}
                             </button>
 
                             {box.accepts_barter && (
                                 <div className="mt-5 pt-5 border-t border-[#1e3a5f] relative z-10">
                                     <p className="text-xs text-slate-400 mb-2 uppercase tracking-wide">摊主接受以物易物，换取：</p>
-                                    <p className="text-sm text-[#00d4aa]/90 font-medium mb-4 bg-white/5 p-3 rounded-lg border border-white/5">"{box.barter_demand}"</p>
+                                    <p className="text-sm text-[#00d4aa]/90 font-medium mb-4 bg-white/5 p-3 rounded-lg border border-white/5">&ldquo;{box.barter_demand}&rdquo;</p>
                                     <button
                                         disabled={isProcessing}
-                                        onClick={() => alert("交换请求已记录！请在群里@摊主进行后续交流。")}
+                                        onClick={() => alert('交换请求已记录！请在群里@摊主进行后续交流。')}
                                         className="w-full py-3 rounded-xl bg-[#0d1220] hover:bg-white/5 text-[#00d4aa]/80 font-bold text-sm border border-[#00d4aa]/20 transition-all hover:border-[#00d4aa]/50"
                                     >
                                         🤝 我有这个，我想换！

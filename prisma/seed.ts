@@ -1,4 +1,4 @@
-import prisma from '../app/lib/prisma';
+import prisma from '../server/db/prisma';
 
 const sampleData = [
     // ═══ OFFER items ═══

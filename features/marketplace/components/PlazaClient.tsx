@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Store, Sparkles, Plus } from 'lucide-react';
-import BlindBoxCard, { BlindBoxData } from './BlindBoxCard';
-import PaymentModal from './PaymentModal';
-import ContentReveal from './ContentReveal';
+import { Plus, Sparkles, Store } from 'lucide-react';
+
+import BlindBoxCard, { type BlindBoxData } from '@/features/marketplace/components/BlindBoxCard';
+import ContentReveal from '@/features/marketplace/components/ContentReveal';
+import PaymentModal from '@/features/marketplace/components/PaymentModal';
 
 function CardCarouselRow({ boxes, speed, reverse, onBoxClick }: {
     boxes: BlindBoxData[];
@@ -22,7 +23,6 @@ function CardCarouselRow({ boxes, speed, reverse, onBoxClick }: {
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            {/* Wide edge fade masks */}
             <div className="absolute left-0 top-0 bottom-0 w-[14%] bg-gradient-to-r from-[#0a0e1a] via-[#0a0e1a]/80 to-transparent z-10 pointer-events-none" />
             <div className="absolute right-0 top-0 bottom-0 w-[14%] bg-gradient-to-l from-[#0a0e1a] via-[#0a0e1a]/80 to-transparent z-10 pointer-events-none" />
 
@@ -34,15 +34,15 @@ function CardCarouselRow({ boxes, speed, reverse, onBoxClick }: {
                     animationTimingFunction: 'linear',
                     animationIterationCount: 'infinite',
                     animationDirection: reverse ? 'reverse' : 'normal',
-                    animationPlayState: isHovered ? 'paused' : 'running'
+                    animationPlayState: isHovered ? 'paused' : 'running',
                 }}
             >
-                {items.map((box, i) => (
-                    <div key={`${box.id}-${i}`} className="w-[290px] shrink-0">
+                {items.map((box, index) => (
+                    <div key={`${box.id}-${index}`} className="w-[290px] shrink-0">
                         <BlindBoxCard
                             box={box}
                             onClick={onBoxClick}
-                            featured={i % boxes.length === 0}
+                            featured={index % boxes.length === 0}
                         />
                     </div>
                 ))}
@@ -79,12 +79,11 @@ export default function PlazaClient({ initialBoxes }: { initialBoxes: BlindBoxDa
 
     const filteredBoxes = boxes.filter(box => (box.itemType || 'OFFER') === activeTab);
 
-    // Split into rows of 4
     const rows: BlindBoxData[][] = [];
-    for (let i = 0; i < filteredBoxes.length; i += 4) {
-        rows.push(filteredBoxes.slice(i, i + 4));
+    for (let index = 0; index < filteredBoxes.length; index += 4) {
+        rows.push(filteredBoxes.slice(index, index + 4));
     }
-    // Pad short rows
+
     const paddedRows = rows.map(row => {
         if (row.length < 3 && filteredBoxes.length >= 3) {
             return [...row, ...filteredBoxes.slice(0, 3 - row.length)];
@@ -94,7 +93,6 @@ export default function PlazaClient({ initialBoxes }: { initialBoxes: BlindBoxDa
 
     return (
         <>
-            {/* ═══ Tab Nav + Post Button ═══ */}
             <div className="flex items-center justify-center gap-3 py-4 px-4">
                 <div className="flex items-center gap-1 p-1 rounded-full bg-[#111827] border border-border">
                     <button
@@ -127,15 +125,14 @@ export default function PlazaClient({ initialBoxes }: { initialBoxes: BlindBoxDa
                 </Link>
             </div>
 
-            {/* ═══ Multi-Row Card Carousel — more vertical spacing ═══ */}
             <div className="pb-16 space-y-6">
                 {paddedRows.length > 0 ? (
-                    paddedRows.map((row, rowIdx) => (
+                    paddedRows.map((row, rowIndex) => (
                         <CardCarouselRow
-                            key={rowIdx}
+                            key={rowIndex}
                             boxes={row}
-                            speed={35 + rowIdx * 8}
-                            reverse={rowIdx % 2 === 1}
+                            speed={35 + rowIndex * 8}
+                            reverse={rowIndex % 2 === 1}
                             onBoxClick={handleBoxClick}
                         />
                     ))
