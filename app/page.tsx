@@ -76,8 +76,11 @@ export default async function Home() {
                 一元破壁集市
               </span>
             </h1>
-            <p className="mt-3 text-base md:text-lg text-muted-foreground text-center max-w-2xl leading-relaxed">
-              一块钱，在这儿你可以买到惊艳的点子、或是悬赏你最缺的资源
+            <p className="mt-3 text-base md:text-lg text-muted-foreground text-center max-w-3xl leading-relaxed flex flex-col gap-1.5 items-center">
+              <span>一块钱，在这儿你可以买到惊艳的点子、或是悬赏你最缺的资源。</span>
+              <span className="text-[#00d4aa] font-medium tracking-wide drop-shadow-[0_0_8px_rgba(0,212,170,0.4)] mt-1">
+                万物皆可交易，大胆把你的想法呈上来！
+              </span>
             </p>
           </section>
 
