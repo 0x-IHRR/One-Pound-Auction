@@ -1,7 +1,9 @@
-import PlazaClient from './components/PlazaClient';
-import AuthNav from './components/auth/AuthNav';
-import { Radio, Video, Diamond, Search } from 'lucide-react';
-import prisma from '@/app/lib/prisma';
+import Image from 'next/image';
+import { Diamond, Radio, Search, Video } from 'lucide-react';
+
+import AuthNav from '@/app/components/auth/AuthNav';
+import PlazaClient from '@/features/marketplace/components/PlazaClient';
+import { listMarketplaceBoxes } from '@/features/marketplace/server/services/box.service';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,9 +17,7 @@ const activities = [
 ];
 
 export default async function Home() {
-  const boxes = await prisma.auctionItem.findMany({
-    orderBy: { createdAt: 'desc' }
-  });
+  const boxes = await listMarketplaceBoxes();
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -33,7 +33,14 @@ export default async function Home() {
         <header className="relative h-[64px] flex items-center justify-between px-4 md:px-8 bg-[#0d1220]/80 border-b border-white/5 backdrop-blur-md w-full shrink-0 gap-4">
           {/* Left: Logo */}
           <div className="flex items-center shrink-0 z-20">
-            <img src="/logo/logo_cropped.png" alt="一元破壁集市 Logo" className="h-10 md:h-[42px] w-auto object-contain opacity-90 hover:opacity-100 transition-all hover:scale-105 origin-left" />
+            <Image
+              src="/logo/logo_cropped.png"
+              alt="一元破壁集市 Logo"
+              width={180}
+              height={42}
+              priority
+              className="h-10 md:h-[42px] w-auto object-contain opacity-90 hover:opacity-100 transition-all hover:scale-105 origin-left"
+            />
           </div>
 
           {/* Center: Search Bar */}

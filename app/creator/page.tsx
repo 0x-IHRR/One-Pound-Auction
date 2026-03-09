@@ -1,15 +1,23 @@
 "use client";
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft, Send } from 'lucide-react';
 import { motion } from 'framer-motion';
+
+import type { CreateBoxInput } from '@/features/marketplace/types/box';
+import type { ApiFailure, ApiSuccess } from '@/shared/http';
+import { getApiErrorMessage } from '@/shared/utils/get-api-error-message';
+
+type CreatorFormData = Omit<CreateBoxInput, 'price' | 'barter_demand'> & {
+    barter_demand: string;
+};
 
 export default function CreatorPage() {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<CreatorFormData>({
         itemType: 'OFFER', // 'OFFER' or 'WISH'
         title: '',
         hook_description: '',
@@ -28,12 +36,13 @@ export default function CreatorPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
             });
+            const payload = await res.json() as ApiSuccess<unknown> | ApiFailure;
 
-            if (res.ok) {
+            if (res.ok && payload.success) {
                 router.push('/');
                 router.refresh();
             } else {
-                alert("发布失败");
+                alert(getApiErrorMessage(payload, '发布失败'));
             }
         } catch (error) {
             console.error(error);

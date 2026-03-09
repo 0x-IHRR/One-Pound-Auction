@@ -1,17 +1,13 @@
 "use client";
 
-import { Flame, ShoppingCart, Lightbulb, Package, Wrench, Heart } from "lucide-react";
+import { Flame, Heart, Lightbulb, Package, ShoppingCart, Wrench } from "lucide-react";
 
-export type BlindBoxData = {
-    id: string;
-    title: string;
-    hook_description: string;
-    price: number;
-    sales_count: number;
-    itemType?: string;
-    accepts_barter?: boolean;
-    barter_demand?: string | null;
-};
+import type { MarketplaceBox } from '@/features/marketplace/types/box';
+
+export type BlindBoxData = Pick<
+    MarketplaceBox,
+    'id' | 'title' | 'hook_description' | 'price' | 'sales_count' | 'itemType' | 'accepts_barter' | 'barter_demand'
+>;
 
 interface BlindBoxCardProps {
     box: BlindBoxData;
@@ -19,7 +15,6 @@ interface BlindBoxCardProps {
     featured?: boolean;
 }
 
-// Smart category detection based on title/description keywords
 function detectCategory(box: BlindBoxData): { label: string; color: string; icon: typeof Flame } {
     const text = (box.title + box.hook_description).toLowerCase();
 
@@ -45,7 +40,6 @@ export default function BlindBoxCard({ box, onClick, featured = false }: BlindBo
             className={`sci-fi-card flex flex-col p-5 cursor-pointer h-[230px] ${featured ? 'sci-fi-card-featured' : ''
                 }`}
         >
-            {/* Tag + Price row */}
             <div className="flex items-center justify-between mb-3">
                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold border ${category.color}`}>
                     <CategoryIcon className="w-3 h-3" />
@@ -56,17 +50,14 @@ export default function BlindBoxCard({ box, onClick, featured = false }: BlindBo
                 </span>
             </div>
 
-            {/* Title */}
             <h3 className="text-[15px] font-semibold text-foreground mb-2 line-clamp-2 leading-snug tracking-tight">
                 {box.title}
             </h3>
 
-            {/* Description */}
             <p className="text-xs text-muted-foreground mb-3 line-clamp-2 leading-relaxed flex-1">
                 {box.hook_description}
             </p>
 
-            {/* Footer */}
             <div className="flex items-center justify-between mt-auto pt-2.5 border-t border-[#1e3a5f]/40">
                 <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
                     <Flame className="w-3 h-3 text-orange-400" />
