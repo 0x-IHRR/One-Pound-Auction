@@ -3,13 +3,20 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X, QrCode, ShieldCheck, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { BlindBoxData } from "./BlindBoxCard";
+
+interface PaymentBoxData {
+    id: string;
+    title: string;
+    price: number;
+    accepts_barter?: boolean;
+    barter_demand?: string | null;
+}
 
 interface PaymentModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess: (content: string) => void;
-    box: BlindBoxData | null;
+    box: PaymentBoxData | null;
 }
 
 export default function PaymentModal({ isOpen, onClose, onSuccess, box }: PaymentModalProps) {
@@ -119,13 +126,15 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, box }: Paymen
                                 disabled={isProcessing}
                                 className="relative z-10 w-full py-4 rounded-xl bg-[#00d4aa]/10 hover:bg-[#00d4aa]/20 text-[#00d4aa] border border-[#00d4aa]/30 font-bold text-lg shadow-[0_0_15px_rgba(0,212,170,0.1)] transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                             >
-                                {isProcessing ? "建立连接中..." : "支付 1 元解锁内容"}
+                                {isProcessing ? "建立连接中..." : `支付 ${box.price.toFixed(2)} 元解锁内容`}
                             </button>
 
                             {box.accepts_barter && (
                                 <div className="mt-5 pt-5 border-t border-[#1e3a5f] relative z-10">
                                     <p className="text-xs text-slate-400 mb-2 uppercase tracking-wide">摊主接受以物易物，换取：</p>
-                                    <p className="text-sm text-[#00d4aa]/90 font-medium mb-4 bg-white/5 p-3 rounded-lg border border-white/5">"{box.barter_demand}"</p>
+                                    <p className="text-sm text-[#00d4aa]/90 font-medium mb-4 bg-white/5 p-3 rounded-lg border border-white/5">
+                                        &ldquo;{box.barter_demand}&rdquo;
+                                    </p>
                                     <button
                                         disabled={isProcessing}
                                         onClick={() => alert("交换请求已记录！请在群里@摊主进行后续交流。")}

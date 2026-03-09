@@ -27,6 +27,7 @@ async function main() {
 
     // Clear existing data
     await prisma.auctionItem.deleteMany();
+    const now = new Date();
 
     for (const item of sampleData) {
         await prisma.auctionItem.create({
@@ -36,6 +37,8 @@ async function main() {
                 price: item.price,
                 hidden_content: item.hidden_content,
                 itemType: item.itemType,
+                status: 'PUBLISHED',
+                publishedAt: now,
             },
         });
     }

@@ -14,13 +14,23 @@ model AuctionItem {
   hook_description String
   hidden_content   String
   price            Float    @default(1.0)
-  
+  authorEmail      String?
+  authorName       String?
+  status           String   @default("PUBLISHED")
+
   // Barter options
   accepts_barter   Boolean  @default(false)
-  barter_demand    String?  
-  
+  barter_demand    String?
+
   sales_count      Int      @default(0)
   createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  publishedAt      DateTime?
+  deletedAt        DateTime?
+
+  @@index([status, deletedAt])
+  @@index([authorEmail, status])
+  @@index([itemType, status])
 }
 
 model ActivityLog {

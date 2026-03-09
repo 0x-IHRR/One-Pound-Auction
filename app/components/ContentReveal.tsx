@@ -35,7 +35,7 @@ export default function ContentReveal({ content, onReset }: ContentRevealProps) 
 
                 <div className="relative">
                     {/* Decorative quotes */}
-                    <div className="absolute -top-4 -left-2 text-6xl text-slate-800 font-serif leading-none select-none">"</div>
+                    <div className="absolute -top-4 -left-2 text-6xl text-slate-800 font-serif leading-none select-none">&ldquo;</div>
 
                     <div className="bg-slate-800/50 rounded-xl p-8 border border-slate-700/50 prose prose-invert max-w-none relative z-10">
                         {/* Extremely simple markdown/link rendering for MVP */}
@@ -53,7 +53,7 @@ export default function ContentReveal({ content, onReset }: ContentRevealProps) 
                         })}
                     </div>
 
-                    <div className="absolute -bottom-10 -right-2 text-6xl text-slate-800 font-serif leading-none select-none rotate-180">"</div>
+                    <div className="absolute -bottom-10 -right-2 text-6xl text-slate-800 font-serif leading-none select-none rotate-180">&rdquo;</div>
                 </div>
 
                 <div className="mt-10 text-center relative z-10">

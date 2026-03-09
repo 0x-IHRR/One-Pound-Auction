@@ -1,157 +1,97 @@
-"use client";
-
-import { useState } from 'react';
 import Link from 'next/link';
-import { Store, Sparkles, Plus } from 'lucide-react';
+import { Store, Sparkles, Plus, Search } from 'lucide-react';
 import BlindBoxCard, { BlindBoxData } from './BlindBoxCard';
-import PaymentModal from './PaymentModal';
-import ContentReveal from './ContentReveal';
-
-function CardCarouselRow({ boxes, speed, reverse, onBoxClick }: {
-    boxes: BlindBoxData[];
-    speed: number;
-    reverse?: boolean;
-    onBoxClick: (box: BlindBoxData) => void;
-}) {
-    const items = [...boxes, ...boxes];
-    const [isHovered, setIsHovered] = useState(false);
-
-    return (
-        <div
-            className="relative overflow-hidden py-2"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-        >
-            {/* Wide edge fade masks */}
-            <div className="absolute left-0 top-0 bottom-0 w-[14%] bg-gradient-to-r from-[#0a0e1a] via-[#0a0e1a]/80 to-transparent z-10 pointer-events-none" />
-            <div className="absolute right-0 top-0 bottom-0 w-[14%] bg-gradient-to-l from-[#0a0e1a] via-[#0a0e1a]/80 to-transparent z-10 pointer-events-none" />
-
-            <div
-                className="flex gap-7 w-max"
-                style={{
-                    animationName: 'carousel-scroll',
-                    animationDuration: `${speed}s`,
-                    animationTimingFunction: 'linear',
-                    animationIterationCount: 'infinite',
-                    animationDirection: reverse ? 'reverse' : 'normal',
-                    animationPlayState: isHovered ? 'paused' : 'running'
-                }}
-            >
-                {items.map((box, i) => (
-                    <div key={`${box.id}-${i}`} className="w-[290px] shrink-0">
-                        <BlindBoxCard
-                            box={box}
-                            onClick={onBoxClick}
-                            featured={i % boxes.length === 0}
-                        />
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
+interface PlazaClientProps {
+    initialBoxes: BlindBoxData[];
+    activeItemType?: 'OFFER' | 'WISH';
+    currentQuery?: string;
 }
 
-export default function PlazaClient({ initialBoxes }: { initialBoxes: BlindBoxData[] }) {
-    const [boxes] = useState<BlindBoxData[]>(initialBoxes);
-    const [selectedBox, setSelectedBox] = useState<BlindBoxData | null>(null);
-    const [isPaymentOpen, setIsPaymentOpen] = useState(false);
-    const [revealedContent, setRevealedContent] = useState<string | null>(null);
-    const [activeTab, setActiveTab] = useState<'OFFER' | 'WISH'>('OFFER');
+function buildHref(itemType?: 'OFFER' | 'WISH', q?: string) {
+    const searchParams = new URLSearchParams();
 
-    const handleBoxClick = (box: BlindBoxData) => {
-        setSelectedBox(box);
-        setIsPaymentOpen(true);
-    };
-
-    const handlePaymentSuccess = (content: string) => {
-        setIsPaymentOpen(false);
-        setRevealedContent(content);
-    };
-
-    const handleReset = () => {
-        setSelectedBox(null);
-        setRevealedContent(null);
-    };
-
-    if (revealedContent) {
-        return <ContentReveal content={revealedContent} onReset={handleReset} />;
+    if (itemType) {
+        searchParams.set('itemType', itemType);
     }
 
-    const filteredBoxes = boxes.filter(box => (box.itemType || 'OFFER') === activeTab);
-
-    // Split into rows of 4
-    const rows: BlindBoxData[][] = [];
-    for (let i = 0; i < filteredBoxes.length; i += 4) {
-        rows.push(filteredBoxes.slice(i, i + 4));
+    if (q) {
+        searchParams.set('q', q);
     }
-    // Pad short rows
-    const paddedRows = rows.map(row => {
-        if (row.length < 3 && filteredBoxes.length >= 3) {
-            return [...row, ...filteredBoxes.slice(0, 3 - row.length)];
-        }
-        return row;
-    });
 
+    const query = searchParams.toString();
+    return query ? `/?${query}` : '/';
+}
+
+export default function PlazaClient({
+    initialBoxes,
+    activeItemType,
+    currentQuery,
+}: PlazaClientProps) {
     return (
-        <>
-            {/* ═══ Tab Nav + Post Button ═══ */}
-            <div className="flex items-center justify-center gap-3 py-4 px-4">
-                <div className="flex items-center gap-1 p-1 rounded-full bg-[#111827] border border-border">
-                    <button
-                        onClick={() => setActiveTab('OFFER')}
-                        className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all ${activeTab === 'OFFER'
-                            ? 'bg-[#00d4aa] text-[#0a0e1a] shadow-lg shadow-[#00d4aa]/20'
-                            : 'text-muted-foreground hover:text-foreground'
-                            }`}
+        <section className="mx-auto w-full max-w-6xl px-4 pb-20">
+            <div className="mb-8 flex flex-col gap-4 rounded-[28px] border border-white/8 bg-white/[0.03] p-5 backdrop-blur-sm md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-wrap items-center gap-2">
+                    <Link
+                        href={buildHref(undefined, currentQuery)}
+                        className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
+                            !activeItemType
+                                ? 'bg-[#00d4aa] text-[#0a0e1a]'
+                                : 'border border-white/10 bg-white/5 text-slate-300 hover:text-white'
+                        }`}
                     >
-                        <Store className="w-4 h-4" />
-                        夜市 (Offers)
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('WISH')}
-                        className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all ${activeTab === 'WISH'
-                            ? 'bg-[#00d4aa] text-[#0a0e1a] shadow-lg shadow-[#00d4aa]/20'
-                            : 'text-muted-foreground hover:text-foreground'
-                            }`}
+                        <Search className="h-4 w-4" />
+                        全部内容
+                    </Link>
+                    <Link
+                        href={buildHref('OFFER', currentQuery)}
+                        className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
+                            activeItemType === 'OFFER'
+                                ? 'bg-[#00d4aa] text-[#0a0e1a]'
+                                : 'border border-white/10 bg-white/5 text-slate-300 hover:text-white'
+                        }`}
                     >
-                        <Sparkles className="w-4 h-4" />
-                        许愿池 (Wishes)
-                    </button>
+                        <Store className="h-4 w-4" />
+                        夜市
+                    </Link>
+                    <Link
+                        href={buildHref('WISH', currentQuery)}
+                        className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
+                            activeItemType === 'WISH'
+                                ? 'bg-[#00d4aa] text-[#0a0e1a]'
+                                : 'border border-white/10 bg-white/5 text-slate-300 hover:text-white'
+                        }`}
+                    >
+                        <Sparkles className="h-4 w-4" />
+                        许愿池
+                    </Link>
                 </div>
+
                 <Link
                     href="/creator"
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-gradient-to-r from-[#00d4aa]/20 to-[#0077b6]/20 border border-[#00d4aa]/30 text-[#00d4aa] text-xs font-medium hover:from-[#00d4aa]/30 hover:to-[#0077b6]/30 transition-all hover:shadow-lg hover:shadow-[#00d4aa]/10"
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-[#00d4aa]/30 bg-[#00d4aa]/10 px-4 py-2 text-sm font-medium text-[#00d4aa] transition hover:bg-[#00d4aa]/20"
                 >
-                    <Plus className="w-4 h-4" />
+                    <Plus className="h-4 w-4" />
                     去发帖
                 </Link>
             </div>
 
-            {/* ═══ Multi-Row Card Carousel — more vertical spacing ═══ */}
-            <div className="pb-16 space-y-6">
-                {paddedRows.length > 0 ? (
-                    paddedRows.map((row, rowIdx) => (
-                        <CardCarouselRow
-                            key={rowIdx}
-                            boxes={row}
-                            speed={35 + rowIdx * 8}
-                            reverse={rowIdx % 2 === 1}
-                            onBoxClick={handleBoxClick}
+            {initialBoxes.length > 0 ? (
+                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                    {initialBoxes.map((box, index) => (
+                        <BlindBoxCard
+                            key={box.id}
+                            box={box}
+                            href={`/boxes/${box.id}`}
+                            featured={index % 5 === 0}
                         />
-                    ))
-                ) : (
-                    <div className="text-center py-16 text-muted-foreground text-sm">
-                        还没有任何人发布内容，快去抢首发吧！ ✨
-                    </div>
-                )}
-            </div>
-
-            <PaymentModal
-                isOpen={isPaymentOpen}
-                onClose={() => setIsPaymentOpen(false)}
-                box={selectedBox}
-                onSuccess={handlePaymentSuccess}
-            />
-        </>
+                    ))}
+                </div>
+            ) : (
+                <div className="rounded-[28px] border border-dashed border-white/10 bg-white/[0.02] px-6 py-14 text-center">
+                    <p className="text-base font-medium text-white">当前筛选条件下还没有公开内容</p>
+                    <p className="mt-2 text-sm text-slate-400">可以换个关键词试试，或者自己先发一条。</p>
+                </div>
+            )}
+        </section>
     );
 }

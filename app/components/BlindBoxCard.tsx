@@ -1,21 +1,12 @@
-"use client";
+import Link from 'next/link';
+import { Flame, ArrowRight, Lightbulb, Package, Wrench, Heart } from 'lucide-react';
+import type { MarketplaceContentSummary } from '../../features/marketplace/types';
 
-import { Flame, ShoppingCart, Lightbulb, Package, Wrench, Heart } from "lucide-react";
-
-export type BlindBoxData = {
-    id: string;
-    title: string;
-    hook_description: string;
-    price: number;
-    sales_count: number;
-    itemType?: string;
-    accepts_barter?: boolean;
-    barter_demand?: string | null;
-};
+export type BlindBoxData = MarketplaceContentSummary;
 
 interface BlindBoxCardProps {
     box: BlindBoxData;
-    onClick: (box: BlindBoxData) => void;
+    href: string;
     featured?: boolean;
 }
 
@@ -35,13 +26,13 @@ function detectCategory(box: BlindBoxData): { label: string; color: string; icon
     return { label: 'Idea', color: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25', icon: Lightbulb };
 }
 
-export default function BlindBoxCard({ box, onClick, featured = false }: BlindBoxCardProps) {
+export default function BlindBoxCard({ box, href, featured = false }: BlindBoxCardProps) {
     const category = detectCategory(box);
     const CategoryIcon = category.icon;
 
     return (
-        <div
-            onClick={() => onClick(box)}
+        <Link
+            href={href}
             className={`sci-fi-card flex flex-col p-5 cursor-pointer h-[230px] ${featured ? 'sci-fi-card-featured' : ''
                 }`}
         >
@@ -72,11 +63,11 @@ export default function BlindBoxCard({ box, onClick, featured = false }: BlindBo
                     <Flame className="w-3 h-3 text-orange-400" />
                     已有 {box.sales_count} 人揭榜/购买
                 </div>
-                <button className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#00d4aa]/10 text-[#00d4aa] text-[11px] font-medium hover:bg-[#00d4aa]/25 transition-colors border border-[#00d4aa]/15">
-                    <ShoppingCart className="w-3 h-3" />
-                    购买
-                </button>
+                <span className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#00d4aa]/10 text-[#00d4aa] text-[11px] font-medium border border-[#00d4aa]/15">
+                    查看详情
+                    <ArrowRight className="w-3 h-3" />
+                </span>
             </div>
-        </div>
+        </Link>
     );
 }
