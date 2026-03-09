@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 一元破壁集市 / web-demo
 
-## Getting Started
+这是一个基于 Next.js App Router 的 MVP Demo，用来验证“一元知识盲盒 / 一元悬赏需求”最小闭环：
 
-First, run the development server:
+- 发布内容
+- 首页展示
+- 模拟支付
+- 解锁隐藏内容
+
+当前仓库的重点不是扩业务，而是先把 demo 收敛成可持续演进的 foundation 底座，供后续 `auth-user`、`marketplace-content`、`order-payment-admin` 复用。
+
+## 技术栈
+
+- Next.js 16
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- Prisma 5
+- SQLite
+- Vitest
+
+## 本地启动
+
+1. 安装依赖
+
+```bash
+npm ci
+```
+
+2. 复制环境变量模板
+
+```bash
+cp ".env.example" ".env"
+```
+
+3. 生成 Prisma Client 并初始化数据库
+
+```bash
+npm run db:generate
+npm run db:migrate
+npm run db:seed
+```
+
+4. 启动开发环境
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+默认地址：[http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 数据库与 Seed
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Prisma schema 使用 `DATABASE_URL` 驱动，本地默认数据库路径是 `prisma/dev.db`
+- 仓库长期只保留 `schema.prisma`、`migrations/`、`seed.ts`
+- SQLite 数据文件仅作为本地运行时资产，不再作为版本化资产提交
+- 正式 seed 入口只有一个：`npm run db:seed`
 
-## Learn More
+常用命令：
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run db:generate
+npm run db:migrate
+npm run db:seed
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 质量门槛
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+在合并到 `main` 之前，必须通过以下检查：
 
-## Deploy on Vercel
+```bash
+npm run lint
+npm test
+npm run build
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 分支协作约定
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `foundation`：公共底座、目录规范、基础设施、统一协议、测试与 CI
+- `auth-user`：用户与鉴权
+- `marketplace-content`：内容市场能力演进
+- `order-payment-admin`：订单、支付、后台最小闭环
+
+目录和接口约定见：
+
+- `docs/foundation-engineering-conventions.md`
+- `docs/module-branch-delivery-plan.md`

@@ -1,38 +1,24 @@
-import { NextResponse } from 'next/server';
-import prisma from '@/app/lib/prisma';
+import { createBoxInputSchema } from '@/features/marketplace/schemas/box.schema';
+import { createMarketplaceBox, listMarketplaceBoxes } from '@/features/marketplace/server/services/box.service';
+import { readJsonBody } from '@/server/lib/read-json-body';
+import { fail, ok } from '@/shared/http';
 
 export async function GET() {
     try {
-        const boxes = await prisma.auctionItem.findMany({
-            orderBy: { createdAt: 'desc' }
-        });
-        return NextResponse.json(boxes);
+        const boxes = await listMarketplaceBoxes();
+        return ok(boxes);
     } catch (error) {
-        console.error('Failed to fetch boxes:', error);
-        return NextResponse.json({ error: 'Failed to fetch boxes' }, { status: 500 });
+        return fail(error);
     }
 }
 
 export async function POST(request: Request) {
     try {
-        const json = await request.json();
-        const { title, hook_description, hidden_content, price, itemType, accepts_barter, barter_demand } = json;
-
-        const newBox = await prisma.auctionItem.create({
-            data: {
-                title,
-                hook_description,
-                hidden_content,
-                price: price || 1.0,
-                itemType: itemType || 'OFFER',
-                accepts_barter: accepts_barter || false,
-                barter_demand: barter_demand || null,
-            }
-        });
-
-        return NextResponse.json(newBox, { status: 201 });
+        const json = await readJsonBody(request);
+        const input = createBoxInputSchema.parse(json);
+        const newBox = await createMarketplaceBox(input);
+        return ok(newBox, 201);
     } catch (error) {
-        console.error('Failed to create box:', error);
-        return NextResponse.json({ error: 'Failed to create box' }, { status: 500 });
+        return fail(error);
     }
 }

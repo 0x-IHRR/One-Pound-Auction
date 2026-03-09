@@ -1,29 +1,16 @@
-import { NextResponse } from 'next/server';
-import prisma from '@/app/lib/prisma';
+import { purchaseBoxParamsSchema } from '@/features/marketplace/schemas/box.schema';
+import { purchaseMarketplaceBox } from '@/features/marketplace/server/services/box.service';
+import { fail, ok } from '@/shared/http';
 
 export async function POST(
-    request: Request,
+    _request: Request,
     { params }: { params: Promise<{ id: string }> } // Await the entire params object in Next.js 15
 ) {
     try {
-        const { id } = await params;
-        // Increment sales count
-        const updatedBox = await prisma.auctionItem.update({
-            where: { id: id },
-            data: {
-                sales_count: {
-                    increment: 1
-                }
-            }
-        });
-
-        // Return the secret content ONLY upon successful "purchase"
-        return NextResponse.json({
-            success: true,
-            hidden_content: updatedBox.hidden_content
-        });
+        const input = purchaseBoxParamsSchema.parse(await params);
+        const result = await purchaseMarketplaceBox(input);
+        return ok(result);
     } catch (error) {
-        console.error('Failed to process purchase:', error);
-        return NextResponse.json({ error: 'Failed to process purchase' }, { status: 500 });
+        return fail(error);
     }
 }

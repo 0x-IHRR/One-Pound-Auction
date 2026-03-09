@@ -34,26 +34,29 @@ export default function ContentReveal({ content, onReset }: ContentRevealProps) 
                 </div>
 
                 <div className="relative">
-                    {/* Decorative quotes */}
-                    <div className="absolute -top-4 -left-2 text-6xl text-slate-800 font-serif leading-none select-none">"</div>
+                    <div className="absolute -top-4 -left-2 text-6xl text-slate-800 font-serif leading-none select-none">&ldquo;</div>
 
                     <div className="bg-slate-800/50 rounded-xl p-8 border border-slate-700/50 prose prose-invert max-w-none relative z-10">
-                        {/* Extremely simple markdown/link rendering for MVP */}
-                        {content.split('\n').map((line, i) => {
+                        {content.split('\n').map((line, index) => {
                             if (line.startsWith('http')) {
                                 return (
-                                    <p key={i}>
+                                    <p key={index}>
                                         <a href={line} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline inline-flex items-center">
                                             点击访问内容链接 <ChevronRight className="w-4 h-4 ml-1" />
                                         </a>
                                     </p>
                                 );
                             }
-                            return <p key={i} className="text-slate-200 leading-relaxed text-lg">{line}</p>;
+
+                            return (
+                                <p key={index} className="text-slate-200 leading-relaxed text-lg">
+                                    {line}
+                                </p>
+                            );
                         })}
                     </div>
 
-                    <div className="absolute -bottom-10 -right-2 text-6xl text-slate-800 font-serif leading-none select-none rotate-180">"</div>
+                    <div className="absolute -bottom-10 -right-2 text-6xl text-slate-800 font-serif leading-none select-none rotate-180">&ldquo;</div>
                 </div>
 
                 <div className="mt-10 text-center relative z-10">
