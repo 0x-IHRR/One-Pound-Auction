@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { Diamond, Radio, Search, Video } from 'lucide-react';
 
+import AuthNav from '@/app/components/auth/AuthNav';
 import PlazaClient from '@/features/marketplace/components/PlazaClient';
 import { listMarketplaceBoxes } from '@/features/marketplace/server/services/box.service';
 
@@ -72,6 +73,8 @@ export default async function Home() {
             <a href="#" className="flex items-center justify-center p-2 rounded-full bg-[#00d4aa]/10 text-[#00d4aa] hover:bg-[#00d4aa]/20 transition-all border border-[#00d4aa]/30 shadow-[0_0_15px_rgba(0,212,170,0.1)] shrink-0" title="进入拍卖场">
               <Video className="w-[18px] h-[18px] shrink-0" />
             </a>
+
+            <AuthNav />
           </div>
         </header>
 
