@@ -3,10 +3,12 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
+import type { ApiFailure, ApiSuccess } from '@/shared/http';
+import { getApiErrorMessage } from '@/shared/utils/get-api-error-message';
 import type {
     MarketplaceContentStatus,
     MarketplaceItemType,
-} from '../../features/marketplace/types';
+} from '@/features/marketplace/types/box';
 import StatusBadge from './StatusBadge';
 
 interface MarketplaceEditorFormProps {
@@ -61,10 +63,10 @@ export default function MarketplaceEditorForm({
                     ...(mode === 'create' ? { status } : {}),
                 }),
             });
+            const payload = await response.json() as ApiSuccess<unknown> | ApiFailure;
 
             if (!response.ok) {
-                const data = await response.json().catch(() => ({ error: '提交失败。' }));
-                setError(data.error ?? '提交失败。');
+                setError(getApiErrorMessage(payload, '提交失败。'));
                 return;
             }
 

@@ -1,8 +1,8 @@
 import Image from 'next/image';
-import PlazaClient from './components/PlazaClient';
-import SessionControls from './components/SessionControls';
-import { getCurrentUser } from './lib/current-user';
-import { marketplaceService } from '../features/marketplace/service';
+
+import AuthNav from '@/app/components/auth/AuthNav';
+import PlazaClient from '@/features/marketplace/components/PlazaClient';
+import { listMarketplaceBoxes } from '@/features/marketplace/server/services/box.service';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,8 +29,7 @@ export default async function Home({
     const resolvedSearchParams = searchParams ? await searchParams : {};
     const itemType = readQuery(resolvedSearchParams.itemType);
     const q = readQuery(resolvedSearchParams.q)?.trim();
-    const currentUser = await getCurrentUser();
-    const boxes = await marketplaceService.listPublicContents({
+    const boxes = await listMarketplaceBoxes({
         itemType: itemType === 'OFFER' || itemType === 'WISH' ? itemType : undefined,
         q: q || undefined,
     });
@@ -55,7 +54,7 @@ export default async function Home({
                             <p className="text-sm text-slate-400">把原来的盲盒流升级成可搜索、可管理、可上下架的内容域。</p>
                         </div>
                     </div>
-                    <SessionControls currentUser={currentUser} />
+                    <AuthNav />
                 </header>
 
                 <main className="pt-10">

@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from 'react';
-import type { MarketplaceContentDetail } from '../../features/marketplace/types';
-import ContentReveal from './ContentReveal';
-import PaymentModal from './PaymentModal';
+import ContentReveal from '@/features/marketplace/components/ContentReveal';
+import PaymentModal from '@/features/marketplace/components/PaymentModal';
+import type { MarketplaceBoxDetail } from '@/features/marketplace/types/box';
 
 interface DetailPurchasePanelProps {
-    content: MarketplaceContentDetail;
+    content: MarketplaceBoxDetail;
 }
 
 export default function DetailPurchasePanel({ content }: DetailPurchasePanelProps) {

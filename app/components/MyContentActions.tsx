@@ -3,7 +3,9 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
-import type { MarketplaceContentStatus } from '../../features/marketplace/types';
+import type { ApiFailure, ApiSuccess } from '@/shared/http';
+import { getApiErrorMessage } from '@/shared/utils/get-api-error-message';
+import type { MarketplaceContentStatus } from '@/features/marketplace/types/box';
 
 interface MyContentActionsProps {
     id: string;
@@ -20,10 +22,10 @@ export default function MyContentActions({ id, status }: MyContentActionsProps) 
         setActiveAction(label);
         setError(null);
         const response = await fetch(url, { method });
+        const payload = await response.json().catch(() => null) as ApiSuccess<unknown> | ApiFailure | null;
 
         if (!response.ok) {
-            const data = await response.json().catch(() => ({ error: '操作失败。' }));
-            setError(data.error ?? '操作失败。');
+            setError(getApiErrorMessage(payload, '操作失败。'));
             setActiveAction(null);
             return;
         }

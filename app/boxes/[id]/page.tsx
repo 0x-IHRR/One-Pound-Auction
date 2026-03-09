@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import DetailPurchasePanel from '../../components/DetailPurchasePanel';
-import SessionControls from '../../components/SessionControls';
-import StatusBadge from '../../components/StatusBadge';
-import { getCurrentUser } from '../../lib/current-user';
-import { isMarketplaceError } from '../../../features/marketplace/errors';
-import { marketplaceService } from '../../../features/marketplace/service';
+import AuthNav from '@/app/components/auth/AuthNav';
+import DetailPurchasePanel from '@/app/components/DetailPurchasePanel';
+import StatusBadge from '@/app/components/StatusBadge';
+import { getCurrentUser } from '@/app/lib/auth/session';
+import { getMarketplaceBoxDetail } from '@/features/marketplace/server/services/box.service';
+import { AppError } from '@/shared/errors';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,9 +19,9 @@ export default async function BoxDetailPage({
     let content;
 
     try {
-        content = await marketplaceService.getContentDetail(id, currentUser);
+        content = await getMarketplaceBoxDetail(id, currentUser);
     } catch (error) {
-        if (isMarketplaceError(error) && error.statusCode === 404) {
+        if (error instanceof AppError && error.status === 404) {
             notFound();
         }
 
@@ -37,7 +37,7 @@ export default async function BoxDetailPage({
                     </Link>
                     <h1 className="mt-2 text-3xl font-bold text-white">内容详情</h1>
                 </div>
-                <SessionControls currentUser={currentUser} />
+                <AuthNav />
             </div>
 
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">

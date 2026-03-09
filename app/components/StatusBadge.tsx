@@ -1,4 +1,4 @@
-import type { MarketplaceContentStatus } from '../../features/marketplace/types';
+import type { MarketplaceContentStatus } from '@/features/marketplace/types/box';
 
 const badgeStyles: Record<MarketplaceContentStatus, string> = {
     DRAFT: 'border-white/10 bg-white/5 text-slate-300',
