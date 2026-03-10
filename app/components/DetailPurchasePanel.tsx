@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from 'react';
 import ContentReveal from '@/features/marketplace/components/ContentReveal';
 import PaymentModal from '@/features/marketplace/components/PaymentModal';
 import type { MarketplaceBoxDetail } from '@/features/marketplace/types/box';
+import { useState } from 'react';
 
 interface DetailPurchasePanelProps {
     content: MarketplaceBoxDetail;
@@ -11,10 +11,9 @@ interface DetailPurchasePanelProps {
 
 export default function DetailPurchasePanel({ content }: DetailPurchasePanelProps) {
     const [isPaymentOpen, setIsPaymentOpen] = useState(false);
-    const [revealedContent, setRevealedContent] = useState<string | null>(null);
 
-    if (revealedContent) {
-        return <ContentReveal content={revealedContent} onReset={() => setRevealedContent(null)} />;
+    if (content.isUnlocked && content.hidden_content) {
+        return <ContentReveal content={content.hidden_content} onReset={() => setIsPaymentOpen(false)} />;
     }
 
     if (content.isOwner) {
@@ -36,13 +35,21 @@ export default function DetailPurchasePanel({ content }: DetailPurchasePanelProp
         );
     }
 
+    if (!content.canPurchase) {
+        return (
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-slate-300">
+                当前内容已存在你的解锁记录或暂不可购买，可前往“我的购买”查看。
+            </div>
+        );
+    }
+
     return (
         <>
             <div className="rounded-3xl border border-[#1e3a5f] bg-[#111827] p-6 shadow-[0_0_30px_rgba(0,212,170,0.06)]">
                 <p className="text-xs uppercase tracking-[0.24em] text-slate-500">解锁入口</p>
                 <p className="mt-4 text-4xl font-black text-[#00d4aa]">¥{content.price.toFixed(2)}</p>
                 <p className="mt-4 text-sm leading-6 text-slate-300">
-                    支付后会调用现有购买接口并返回隐藏内容。本分支只收紧可见性，不改动支付主流程。
+                    购买会先创建订单，再进入模拟支付。支付成功后写入解锁记录，详情页根据解锁态展示隐藏内容。
                 </p>
                 <button
                     type="button"
@@ -56,9 +63,8 @@ export default function DetailPurchasePanel({ content }: DetailPurchasePanelProp
             <PaymentModal
                 isOpen={isPaymentOpen}
                 onClose={() => setIsPaymentOpen(false)}
-                onSuccess={(nextContent) => {
+                onSuccess={() => {
                     setIsPaymentOpen(false);
-                    setRevealedContent(nextContent);
                 }}
                 box={{
                     id: content.id,

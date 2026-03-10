@@ -97,6 +97,12 @@ export default async function MePage({ searchParams }: MePageProps) {
                         >
                             去发布内容
                         </Link>
+                        <Link
+                            href="/me/purchases"
+                            className="inline-flex items-center rounded-full border border-white/10 px-4 py-2 text-sm font-medium text-slate-200 transition-colors hover:border-[#00d4aa]/40 hover:text-[#00d4aa]"
+                        >
+                            查看我的购买
+                        </Link>
                         {user.role === 'ADMIN' ? (
                             <Link
                                 href="/admin"

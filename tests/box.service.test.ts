@@ -3,12 +3,18 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const repositoryMocks = vi.hoisted(() => ({
     createBox: vi.fn(),
     findBoxById: vi.fn(),
-    incrementSalesCount: vi.fn(),
     listBoxes: vi.fn(),
     updateBox: vi.fn(),
 }));
 
+const orderServiceMocks = vi.hoisted(() => ({
+    createOrder: vi.fn(),
+    hasUnlockedBox: vi.fn(),
+    payOrder: vi.fn(),
+}));
+
 vi.mock('@/features/marketplace/server/repositories/box.repository', () => repositoryMocks);
+vi.mock('@/features/order-payment/server/services/order.service', () => orderServiceMocks);
 
 import {
     createMarketplaceBox,
@@ -54,6 +60,7 @@ const currentUser = {
 describe('marketplace box service', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        orderServiceMocks.hasUnlockedBox.mockResolvedValue(false);
     });
 
     it('创建内容时写入作者归属并返回作者详情', async () => {
@@ -188,29 +195,55 @@ describe('marketplace box service', () => {
             status: 'UNLISTED',
         }));
 
-        await expect(purchaseMarketplaceBox({ id: 'box-1' })).rejects.toMatchObject({
-            code: 'CONFLICT',
-            status: 409,
+        await expect(getMarketplaceBoxDetail('box-1', null)).rejects.toMatchObject({
+            code: 'NOT_FOUND',
+            status: 404,
         });
     });
 
     it('购买不存在资源时抛出 404 业务错误', async () => {
         repositoryMocks.findBoxById.mockResolvedValue(null);
 
-        await expect(purchaseMarketplaceBox({ id: 'missing-id' })).rejects.toMatchObject({
+        await expect(getMarketplaceBoxDetail('missing-id', null)).rejects.toMatchObject({
             code: 'NOT_FOUND',
             status: 404,
         });
     });
 
-    it('购买已发布内容时返回隐藏内容', async () => {
+    it('已解锁用户读取详情时可见隐藏内容', async () => {
         repositoryMocks.findBoxById.mockResolvedValue(makeBox());
-        repositoryMocks.incrementSalesCount.mockResolvedValue(makeBox({
-            hidden_content: '真正内容',
-        }));
+        orderServiceMocks.hasUnlockedBox.mockResolvedValue(true);
 
-        await expect(purchaseMarketplaceBox({ id: 'box-1' })).resolves.toEqual({
-            hidden_content: '真正内容',
+        await expect(getMarketplaceBoxDetail('box-1', {
+            email: 'buyer@example.com',
+            name: 'Buyer',
+            role: 'USER',
+        })).resolves.toMatchObject({
+            isUnlocked: true,
+            hidden_content: '隐藏内容',
+        });
+    });
+
+    it('兼容购买入口委托订单域处理支付', async () => {
+        orderServiceMocks.createOrder.mockResolvedValue({
+            order: {
+                id: 'order-1',
+            },
+        });
+        orderServiceMocks.payOrder.mockResolvedValue({
+            order: {
+                id: 'order-1',
+                status: 'PAID',
+            },
+        });
+
+        await expect(purchaseMarketplaceBox({ id: 'box-1' }, {
+            email: 'buyer@example.com',
+            name: 'Buyer',
+            role: 'USER',
+        })).resolves.toEqual({
+            orderId: 'order-1',
+            paid: true,
         });
     });
 });

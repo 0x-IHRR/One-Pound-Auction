@@ -1,5 +1,6 @@
 import { AppError } from '@/shared/errors';
 import type { CurrentUser } from '@/app/lib/auth/session';
+import { createOrder, payOrder, hasUnlockedBox } from '@/features/order-payment/server/services/order.service';
 import type {
     CreateBoxInput,
     ListMarketplaceBoxesQuery,
@@ -12,7 +13,7 @@ import type {
     UpdateBoxInput,
 } from '@/features/marketplace/types/box';
 
-import { createBox, findBoxById, incrementSalesCount, listBoxes, updateBox } from '../repositories/box.repository';
+import { createBox, findBoxById, listBoxes, updateBox } from '../repositories/box.repository';
 
 function toSummary(box: MarketplaceBox): MarketplaceBoxSummary {
     const { hidden_content, ...summary } = box;
@@ -20,11 +21,13 @@ function toSummary(box: MarketplaceBox): MarketplaceBoxSummary {
     return summary;
 }
 
-function toDetail(box: MarketplaceBox, isOwner: boolean): MarketplaceBoxDetail {
+function toDetail(box: MarketplaceBox, isOwner: boolean, isUnlocked: boolean): MarketplaceBoxDetail {
     return {
         ...toSummary(box),
-        hidden_content: isOwner ? box.hidden_content : undefined,
+        hidden_content: isOwner || isUnlocked ? box.hidden_content : undefined,
         isOwner,
+        isUnlocked,
+        canPurchase: box.status === 'PUBLISHED' && !isOwner && !isUnlocked,
     };
 }
 
@@ -95,12 +98,13 @@ export async function getMarketplaceBoxDetail(id: string, user: CurrentUser | nu
     }
 
     const owner = isOwner(box, user);
+    const unlocked = Boolean(user && !owner && await hasUnlockedBox(id, user.email));
 
     if (!owner && box.status !== 'PUBLISHED') {
         throw new AppError('NOT_FOUND', '目标内容不存在。', 404, { id });
     }
 
-    return toDetail(box, owner);
+    return toDetail(box, owner, unlocked);
 }
 
 export async function createMarketplaceBox(input: CreateBoxInput, user: CurrentUser): Promise<MarketplaceBoxDetail> {
@@ -115,7 +119,7 @@ export async function createMarketplaceBox(input: CreateBoxInput, user: CurrentU
         deletedAt: null,
     });
 
-    return toDetail(created, true);
+    return toDetail(created, true, false);
 }
 
 export async function updateMarketplaceBox(id: string, input: UpdateBoxInput, user: CurrentUser): Promise<MarketplaceBoxDetail> {
@@ -134,14 +138,14 @@ export async function updateMarketplaceBox(id: string, input: UpdateBoxInput, us
         updatedAt: new Date(),
     });
 
-    return toDetail(updated, true);
+    return toDetail(updated, true, false);
 }
 
 export async function publishMarketplaceBox(id: string, user: CurrentUser): Promise<MarketplaceBoxDetail> {
     const box = assertOwnedBox(await findBoxById(id), user);
 
     if (box.status === 'PUBLISHED') {
-        return toDetail(box, true);
+        return toDetail(box, true, false);
     }
 
     const updated = await updateBox(id, {
@@ -151,7 +155,7 @@ export async function publishMarketplaceBox(id: string, user: CurrentUser): Prom
         updatedAt: new Date(),
     });
 
-    return toDetail(updated, true);
+    return toDetail(updated, true, false);
 }
 
 export async function unlistMarketplaceBox(id: string, user: CurrentUser): Promise<MarketplaceBoxDetail> {
@@ -166,7 +170,7 @@ export async function unlistMarketplaceBox(id: string, user: CurrentUser): Promi
         updatedAt: new Date(),
     });
 
-    return toDetail(updated, true);
+    return toDetail(updated, true, false);
 }
 
 export async function deleteMarketplaceBox(id: string, user: CurrentUser): Promise<void> {
@@ -179,20 +183,39 @@ export async function deleteMarketplaceBox(id: string, user: CurrentUser): Promi
     });
 }
 
-export async function purchaseMarketplaceBox(params: PurchaseBoxParams): Promise<PurchaseBoxResult> {
-    const box = await findBoxById(params.id);
+export async function purchaseMarketplaceBox(params: PurchaseBoxParams, user: CurrentUser): Promise<PurchaseBoxResult> {
+    const order = await createOrder({ itemId: params.id }, user);
+    const paidOrder = await payOrder(order.order.id, user);
+
+    return {
+        orderId: paidOrder.order.id,
+        paid: paidOrder.order.status === 'PAID',
+    };
+}
+
+export async function listAdminMarketplaceBoxes(): Promise<MarketplaceBoxSummary[]> {
+    const boxes = await listBoxes({
+        includeDeleted: true,
+    });
+
+    return boxes.map(toSummary);
+}
+
+export async function adminUnlistMarketplaceBox(id: string): Promise<MarketplaceBoxDetail> {
+    const box = await findBoxById(id);
 
     if (!box || box.deletedAt || box.status === 'DELETED') {
-        throw new AppError('NOT_FOUND', '目标内容不存在。', 404, { id: params.id });
+        throw new AppError('NOT_FOUND', '目标内容不存在。', 404, { id });
     }
 
     if (box.status !== 'PUBLISHED') {
-        throw new AppError('CONFLICT', '当前内容不可购买。', 409, { id: params.id, status: box.status });
+        throw new AppError('CONFLICT', '只有已发布内容可以下架。', 409, { id, status: box.status });
     }
 
-    const updatedBox = await incrementSalesCount(params.id);
+    const updated = await updateBox(id, {
+        status: 'UNLISTED',
+        updatedAt: new Date(),
+    });
 
-    return {
-        hidden_content: updatedBox.hidden_content,
-    };
+    return toDetail(updated, false, false);
 }

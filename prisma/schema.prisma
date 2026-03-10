@@ -27,6 +27,8 @@ model AuctionItem {
   updatedAt        DateTime @updatedAt
   publishedAt      DateTime?
   deletedAt        DateTime?
+  orders           Order[]
+  unlockRecords    UnlockRecord[]
 
   @@index([status, deletedAt])
   @@index([authorEmail, status])
@@ -37,4 +39,54 @@ model ActivityLog {
   id               String   @id @default(cuid())
   message          String   // e.g. "User just unlocked 'Notion Template'"
   createdAt        DateTime @default(now())
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  buyerEmail  String
+  buyerName   String?
+  itemId      String
+  sellerEmail String
+  amount      Float
+  status      String      @default("PENDING")
+  createdAt   DateTime    @default(now())
+  paidAt      DateTime?
+  cancelledAt DateTime?
+  item        AuctionItem @relation(fields: [itemId], references: [id])
+  payment     Payment?
+  unlockRecord UnlockRecord?
+
+  @@index([buyerEmail, createdAt])
+  @@index([itemId, createdAt])
+  @@index([status, createdAt])
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  orderId          String        @unique
+  provider         String
+  providerTradeNo  String?
+  status           String        @default("INITIATED")
+  amount           Float
+  callbackPayload  String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  order            Order         @relation(fields: [orderId], references: [id])
+
+  @@index([provider, providerTradeNo])
+  @@index([status, updatedAt])
+}
+
+model UnlockRecord {
+  id         String      @id @default(cuid())
+  orderId     String      @unique
+  itemId      String
+  buyerEmail  String
+  unlockedAt  DateTime    @default(now())
+  order       Order       @relation(fields: [orderId], references: [id])
+  item        AuctionItem @relation(fields: [itemId], references: [id])
+
+  @@unique([itemId, buyerEmail])
+  @@index([buyerEmail, unlockedAt])
+  @@index([itemId, unlockedAt])
 }

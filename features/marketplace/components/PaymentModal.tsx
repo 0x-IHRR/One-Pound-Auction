@@ -2,9 +2,10 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { Loader2, QrCode, ShieldCheck, X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-import type { MarketplaceBoxDetail, PurchaseBoxResult } from '@/features/marketplace/types/box';
+import type { MarketplaceBoxDetail } from '@/features/marketplace/types/box';
 import type { ApiFailure, ApiSuccess } from '@/shared/http';
 import { getApiErrorMessage } from '@/shared/utils/get-api-error-message';
 
@@ -16,12 +17,13 @@ type PaymentBoxData = Pick<
 interface PaymentModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSuccess: (content: string) => void;
+    onSuccess: () => void;
     box: PaymentBoxData | null;
 }
 
 export default function PaymentModal({ isOpen, onClose, onSuccess, box }: PaymentModalProps) {
     const [isProcessing, setIsProcessing] = useState(false);
+    const router = useRouter();
 
     if (!box) {
         return null;
@@ -33,17 +35,41 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, box }: Paymen
         try {
             await new Promise((resolve) => setTimeout(resolve, 2000));
 
-            const response = await fetch(`/api/boxes/${box.id}/purchase`, {
+            const createOrderResponse = await fetch('/api/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    itemId: box.id,
+                }),
+            });
+            const createOrderPayload = (await createOrderResponse.json()) as ApiSuccess<{
+                order: {
+                    id: string;
+                };
+            }> | ApiFailure;
+
+            if (!createOrderResponse.ok || !createOrderPayload.success) {
+                throw new Error(getApiErrorMessage(createOrderPayload, '创建订单失败，请重试。'));
+            }
+
+            const payResponse = await fetch(`/api/orders/${createOrderPayload.data.order.id}/pay`, {
                 method: 'POST',
             });
-            const payload = (await response.json()) as ApiSuccess<PurchaseBoxResult> | ApiFailure;
+            const payPayload = (await payResponse.json()) as ApiSuccess<{
+                order: {
+                    status: string;
+                };
+            }> | ApiFailure;
 
-            if (response.ok && payload.success) {
-                setIsProcessing(false);
-                onSuccess(payload.data.hidden_content);
-            } else {
-                throw new Error(getApiErrorMessage(payload, '支付失败，请重试。'));
+            if (!payResponse.ok || !payPayload.success || payPayload.data.order.status !== 'PAID') {
+                throw new Error(getApiErrorMessage(payPayload, '支付失败，请重试。'));
             }
+
+            router.refresh();
+            setIsProcessing(false);
+            onSuccess();
         } catch (error) {
             console.error(error);
             setIsProcessing(false);
@@ -136,7 +162,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, box }: Paymen
                                         onClick={() => alert('交换请求已记录！请在群里@摊主进行后续交流。')}
                                         className="w-full rounded-xl border border-[#00d4aa]/20 bg-[#0d1220] py-3 text-sm font-bold text-[#00d4aa]/80 transition-all hover:border-[#00d4aa]/50 hover:bg-white/5"
                                     >
-                                        🤝 我有这个，我想换！
+                                        我有这个，我想换
                                     </button>
                                 </div>
                             ) : null}

@@ -30,8 +30,8 @@ export default function ContentReveal({ content, onReset }: ContentRevealProps) 
                         <CheckCircle2 className="h-8 w-8" />
                     </motion.div>
                     <div>
-                        <h2 className="text-2xl font-bold text-white">支付成功！</h2>
-                        <p className="text-sm text-green-400">盲盒已为您开启</p>
+                        <h2 className="text-2xl font-bold text-white">内容已解锁</h2>
+                        <p className="text-sm text-green-400">你现在可以查看隐藏内容</p>
                     </div>
                 </div>
 

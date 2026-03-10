@@ -58,7 +58,8 @@ export type PurchaseBoxParams = {
 };
 
 export type PurchaseBoxResult = {
-    hidden_content: string;
+    orderId: string;
+    paid: boolean;
 };
 
 export type MarketplaceBoxSummary = Omit<MarketplaceBox, 'hidden_content'>;
@@ -66,4 +67,6 @@ export type MarketplaceBoxSummary = Omit<MarketplaceBox, 'hidden_content'>;
 export type MarketplaceBoxDetail = MarketplaceBoxSummary & {
     hidden_content?: string;
     isOwner: boolean;
+    isUnlocked: boolean;
+    canPurchase: boolean;
 };

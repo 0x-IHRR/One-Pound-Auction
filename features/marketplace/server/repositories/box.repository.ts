@@ -62,9 +62,15 @@ function mapBox(record: {
     updatedAt: Date;
     publishedAt: Date | null;
     deletedAt: Date | null;
+    _count?: {
+        unlockRecords: number;
+    };
 }): MarketplaceBox {
+    const { _count, ...rest } = record;
+
     return {
-        ...record,
+        ...rest,
+        sales_count: _count?.unlockRecords ?? record.sales_count,
         itemType: normalizeItemType(record.itemType),
         status: normalizeStatus(record.status),
     };
@@ -87,6 +93,13 @@ export async function listBoxes(filters: BoxRepositoryFilters = {}): Promise<Mar
     const records = await prisma.auctionItem.findMany({
         where,
         orderBy: { createdAt: 'desc' },
+        include: {
+            _count: {
+                select: {
+                    unlockRecords: true,
+                },
+            },
+        },
     });
 
     return records.map(mapBox);
@@ -103,28 +116,29 @@ export async function createBox(data: BoxCreateData): Promise<MarketplaceBox> {
 export async function findBoxById(id: string): Promise<MarketplaceBox | null> {
     const record = await prisma.auctionItem.findUnique({
         where: { id },
-    });
-
-    return record ? mapBox(record) : null;
-}
-
-export async function incrementSalesCount(id: string): Promise<MarketplaceBox> {
-    const record = await prisma.auctionItem.update({
-        where: { id },
-        data: {
-            sales_count: {
-                increment: 1,
+        include: {
+            _count: {
+                select: {
+                    unlockRecords: true,
+                },
             },
         },
     });
 
-    return mapBox(record);
+    return record ? mapBox(record) : null;
 }
 
 export async function updateBox(id: string, data: BoxUpdateData): Promise<MarketplaceBox> {
     const record = await prisma.auctionItem.update({
         where: { id },
         data,
+        include: {
+            _count: {
+                select: {
+                    unlockRecords: true,
+                },
+            },
+        },
     });
 
     return mapBox(record);
