@@ -17,6 +17,10 @@ model AuctionItem {
   authorEmail      String?
   authorName       String?
   status           String   @default("PUBLISHED")
+  livePlatform     String?
+  liveUrl          String?
+  liveStartsAt     DateTime?
+  liveStatus       String?
 
   // Barter options
   accepts_barter   Boolean  @default(false)
@@ -33,6 +37,7 @@ model AuctionItem {
   @@index([status, deletedAt])
   @@index([authorEmail, status])
   @@index([itemType, status])
+  @@index([liveStatus, liveStartsAt])
 }
 
 model ActivityLog {

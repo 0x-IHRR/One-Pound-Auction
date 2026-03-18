@@ -61,6 +61,10 @@ export default async function EditBoxPage({
                     price: content.price,
                     accepts_barter: content.accepts_barter,
                     barter_demand: content.barter_demand,
+                    livePlatform: content.livePlatform,
+                    liveUrl: content.liveUrl,
+                    liveStartsAt: content.liveStartsAt ? content.liveStartsAt.toISOString() : null,
+                    liveStatus: content.liveStatus,
                 }}
             />
         </main>

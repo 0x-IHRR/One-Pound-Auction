@@ -30,24 +30,28 @@ import {
 function makeBox(overrides: Record<string, unknown> = {}) {
     const now = new Date('2026-03-09T08:00:00.000Z');
 
-    return {
-        id: 'box-1',
-        itemType: 'OFFER',
-        title: '标题',
-        hook_description: '描述',
-        hidden_content: '隐藏内容',
-        price: 1,
-        accepts_barter: false,
-        barter_demand: null,
-        sales_count: 0,
-        authorEmail: 'owner@example.com',
-        authorName: 'Owner',
-        status: 'PUBLISHED',
-        createdAt: now,
-        updatedAt: now,
-        publishedAt: now,
-        deletedAt: null,
-        ...overrides,
+        return {
+            id: 'box-1',
+            itemType: 'OFFER',
+            title: '标题',
+            hook_description: '描述',
+            hidden_content: '隐藏内容',
+            price: 1,
+            accepts_barter: false,
+            barter_demand: null,
+            sales_count: 0,
+            authorEmail: 'owner@example.com',
+            authorName: 'Owner',
+            status: 'PUBLISHED',
+            livePlatform: null,
+            liveUrl: null,
+            liveStartsAt: null,
+            liveStatus: null,
+            createdAt: now,
+            updatedAt: now,
+            publishedAt: now,
+            deletedAt: null,
+            ...overrides,
     };
 }
 
@@ -67,6 +71,10 @@ describe('marketplace box service', () => {
         repositoryMocks.createBox.mockResolvedValue(makeBox({
             status: 'DRAFT',
             publishedAt: null,
+            livePlatform: 'ZOOM',
+            liveUrl: 'https://zoom.us/j/1234567890',
+            liveStartsAt: new Date('2026-03-20T12:30:00.000Z'),
+            liveStatus: 'SCHEDULED',
         }));
 
         await expect(createMarketplaceBox({
@@ -78,12 +86,18 @@ describe('marketplace box service', () => {
             accepts_barter: false,
             barter_demand: '不会被保留',
             status: 'DRAFT',
+            livePlatform: 'ZOOM',
+            liveUrl: 'https://zoom.us/j/1234567890',
+            liveStartsAt: new Date('2026-03-20T12:30:00.000Z'),
+            liveStatus: 'SCHEDULED',
         }, currentUser)).resolves.toMatchObject({
             authorEmail: 'owner@example.com',
             authorName: 'Owner',
             status: 'DRAFT',
             isOwner: true,
             hidden_content: '隐藏内容',
+            livePlatform: 'ZOOM',
+            liveStatus: 'SCHEDULED',
         });
 
         expect(repositoryMocks.createBox).toHaveBeenCalledWith(expect.objectContaining({
@@ -91,6 +105,8 @@ describe('marketplace box service', () => {
             authorName: 'Owner',
             barter_demand: null,
             publishedAt: null,
+            livePlatform: 'ZOOM',
+            liveUrl: 'https://zoom.us/j/1234567890',
         }));
     });
 

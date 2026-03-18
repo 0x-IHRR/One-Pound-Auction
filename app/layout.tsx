@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import { auth } from "@/auth";
+import CustomCursor from "@/app/components/CustomCursor";
 import AuthSessionProvider from "@/app/components/auth/AuthSessionProvider";
 
 import "./globals.css";
@@ -33,7 +34,10 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthSessionProvider session={session}>{children}</AuthSessionProvider>
+        <AuthSessionProvider session={session}>
+          <CustomCursor />
+          {children}
+        </AuthSessionProvider>
       </body>
     </html>
   );

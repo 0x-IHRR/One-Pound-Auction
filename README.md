@@ -47,6 +47,8 @@ cp ".env.example" ".env"
 - `APP_BASE_URL`
 - `AUTH_SECRET`
 
+默认模板已经开启 Demo 登录，开箱即用；如果你要关闭演示登录，再手动把 `AUTH_DEMO_ENABLED=false`。
+
 3. 生成 Prisma Client 并初始化数据库
 
 ```bash
@@ -77,6 +79,7 @@ npm run dev
 - `npm run db:migrate` 用于在本地应用已有迁移；它不会创建新迁移文件
 - 正式 seed 入口只有一个：`npm run db:seed`
 - 鉴权相关环境变量统一通过 `.env` 提供；本地最小可运行配置至少需要 `AUTH_SECRET`
+- 默认 seed 会写入可直接演示购买流程的内容归属数据，不再依赖匿名历史内容
 
 常用命令：
 
@@ -98,6 +101,25 @@ npm run db:seed
 - `/me/purchases`
 - `/api/orders`
 - `/admin`
+
+## MVP 演示流程
+
+默认 `.env.example` 已经准备好两套 Demo 身份：
+
+- 普通用户：`demo-user@example.com`
+- 管理员：`demo-admin@example.com`
+
+推荐按下面顺序演示：
+
+1. 打开 `/sign-in`，先用“普通用户身份”登录
+2. 回到首页，打开任意一条管理员发布的 `OFFER`
+3. 点击购买，完成模拟支付
+4. 支付成功后自动回到详情页，确认隐藏内容已经解锁
+5. 打开 `/me/purchases`，确认购买记录存在
+6. 退出后再用“管理员身份”登录
+7. 打开 `/creator` 发布新内容，或进入 `/admin` 查看内容列表与订单列表
+
+如果你配置了 Google OAuth，也可以继续使用 Google 登录；Demo 登录只是为了保证 MVP 在本地和演示环境可直接跑通。
 
 ## 质量门槛
 

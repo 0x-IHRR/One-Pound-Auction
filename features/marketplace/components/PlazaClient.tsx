@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Plus, Search, Sparkles, Store } from 'lucide-react';
 
 import BlindBoxCard, { type BlindBoxData } from '@/features/marketplace/components/BlindBoxCard';
+import MarqueeRow from '@/features/marketplace/components/MarqueeRow';
 
 interface PlazaClientProps {
     initialBoxes: BlindBoxData[];
@@ -25,8 +26,14 @@ function buildHref(itemType?: 'OFFER' | 'WISH', q?: string) {
 }
 
 export default function PlazaClient({ initialBoxes, activeItemType, currentQuery }: PlazaClientProps) {
+    const rows = [
+        initialBoxes.filter((_, index) => index % 3 === 0),
+        initialBoxes.filter((_, index) => index % 3 === 1),
+        initialBoxes.filter((_, index) => index % 3 === 2),
+    ].filter((row) => row.length > 0);
+
     return (
-        <section className="mx-auto w-full max-w-6xl px-4 pb-20">
+        <section className="w-full pb-20">
             <div className="mb-8 flex flex-col gap-4 rounded-[28px] border border-white/8 bg-white/[0.03] p-5 backdrop-blur-sm md:flex-row md:items-center md:justify-between">
                 <div className="flex flex-wrap items-center gap-2">
                     <Link
@@ -38,7 +45,7 @@ export default function PlazaClient({ initialBoxes, activeItemType, currentQuery
                         }`}
                     >
                         <Search className="h-4 w-4" />
-                        全部内容
+                        全部逛逛
                     </Link>
                     <Link
                         href={buildHref('OFFER', currentQuery)}
@@ -69,25 +76,38 @@ export default function PlazaClient({ initialBoxes, activeItemType, currentQuery
                     className="inline-flex items-center justify-center gap-2 rounded-full border border-[#00d4aa]/30 bg-[#00d4aa]/10 px-4 py-2 text-sm font-medium text-[#00d4aa] transition hover:bg-[#00d4aa]/20"
                 >
                     <Plus className="h-4 w-4" />
-                    去发帖
+                    挂个新摊
                 </Link>
             </div>
 
             {initialBoxes.length > 0 ? (
-                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                    {initialBoxes.map((box, index) => (
-                        <BlindBoxCard
-                            key={box.id}
-                            box={box}
-                            href={`/boxes/${box.id}`}
-                            featured={index % 5 === 0}
-                        />
-                    ))}
+                <div className="space-y-5">
+                    <div className="xl:-mx-10">
+                        {rows.map((row, index) => (
+                            <MarqueeRow
+                                key={`row-${index}`}
+                                boxes={row}
+                                rowIndex={index}
+                                direction={index % 2 === 0 ? "right" : "left"}
+                            />
+                        ))}
+                    </div>
+
+                    <div className="grid gap-5 pt-6 sm:grid-cols-2 xl:hidden">
+                        {initialBoxes.map((box, index) => (
+                            <BlindBoxCard
+                                key={`fallback-${box.id}`}
+                                box={box}
+                                href={`/boxes/${box.id}`}
+                                featured={index % 5 === 0}
+                            />
+                        ))}
+                    </div>
                 </div>
             ) : (
                 <div className="rounded-[28px] border border-dashed border-white/10 bg-white/[0.02] px-6 py-14 text-center">
-                    <p className="text-base font-medium text-white">当前筛选条件下还没有公开内容</p>
-                    <p className="mt-2 text-sm text-slate-400">可以换个关键词试试，或者自己先发一条。</p>
+                    <p className="text-base font-medium text-white">这一栏暂时还空着</p>
+                    <p className="mt-2 text-sm text-slate-400">换个词再捞一遍，或者干脆自己先挂点东西上来。</p>
                 </div>
             )}
         </section>

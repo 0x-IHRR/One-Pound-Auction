@@ -87,6 +87,205 @@
   animation-play-state: paused;
 }
 
+@keyframes marquee-left {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes marquee-right {
+  0% {
+    transform: translate3d(-50%, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.marquee-row {
+  position: relative;
+  padding: 0.35rem 0;
+}
+
+.marquee-row__viewport {
+  position: relative;
+  overflow: hidden;
+  --marquee-fade-width: clamp(7rem, 18vw, 14rem);
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0) 0,
+    rgba(0, 0, 0, 0.03) calc(var(--marquee-fade-width) * 0.16),
+    rgba(0, 0, 0, 0.1) calc(var(--marquee-fade-width) * 0.32),
+    rgba(0, 0, 0, 0.22) calc(var(--marquee-fade-width) * 0.5),
+    rgba(0, 0, 0, 0.42) calc(var(--marquee-fade-width) * 0.7),
+    rgba(0, 0, 0, 0.68) calc(var(--marquee-fade-width) * 0.84),
+    #000 var(--marquee-fade-width),
+    #000 calc(100% - var(--marquee-fade-width)),
+    rgba(0, 0, 0, 0.68) calc(100% - (var(--marquee-fade-width) * 0.84)),
+    rgba(0, 0, 0, 0.42) calc(100% - (var(--marquee-fade-width) * 0.7)),
+    rgba(0, 0, 0, 0.22) calc(100% - (var(--marquee-fade-width) * 0.5)),
+    rgba(0, 0, 0, 0.1) calc(100% - (var(--marquee-fade-width) * 0.32)),
+    rgba(0, 0, 0, 0.03) calc(100% - (var(--marquee-fade-width) * 0.16)),
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0) 0,
+    rgba(0, 0, 0, 0.03) calc(var(--marquee-fade-width) * 0.16),
+    rgba(0, 0, 0, 0.1) calc(var(--marquee-fade-width) * 0.32),
+    rgba(0, 0, 0, 0.22) calc(var(--marquee-fade-width) * 0.5),
+    rgba(0, 0, 0, 0.42) calc(var(--marquee-fade-width) * 0.7),
+    rgba(0, 0, 0, 0.68) calc(var(--marquee-fade-width) * 0.84),
+    #000 var(--marquee-fade-width),
+    #000 calc(100% - var(--marquee-fade-width)),
+    rgba(0, 0, 0, 0.68) calc(100% - (var(--marquee-fade-width) * 0.84)),
+    rgba(0, 0, 0, 0.42) calc(100% - (var(--marquee-fade-width) * 0.7)),
+    rgba(0, 0, 0, 0.22) calc(100% - (var(--marquee-fade-width) * 0.5)),
+    rgba(0, 0, 0, 0.1) calc(100% - (var(--marquee-fade-width) * 0.32)),
+    rgba(0, 0, 0, 0.03) calc(100% - (var(--marquee-fade-width) * 0.16)),
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 1.25rem;
+  will-change: transform;
+}
+
+.marquee-track--left {
+  animation: marquee-left linear infinite;
+}
+
+.marquee-track--right {
+  animation: marquee-right linear infinite;
+}
+
+.marquee-row:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+.marquee-card-shell {
+  padding: 0.35rem 0;
+}
+
+.marquee-row__edge-glow {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  width: var(--marquee-fade-width);
+  opacity: 0.42;
+}
+
+.marquee-row__edge-glow--left {
+  left: 0;
+  background:
+    linear-gradient(90deg, rgba(10, 14, 26, 0.16) 0%, rgba(10, 14, 26, 0.08) 35%, rgba(10, 14, 26, 0.02) 62%, rgba(10, 14, 26, 0) 100%),
+    radial-gradient(circle at left center, rgba(0, 212, 170, 0.06) 0%, rgba(0, 212, 170, 0.025) 32%, transparent 76%);
+}
+
+.marquee-row__edge-glow--right {
+  right: 0;
+  background:
+    linear-gradient(270deg, rgba(10, 14, 26, 0.16) 0%, rgba(10, 14, 26, 0.08) 35%, rgba(10, 14, 26, 0.02) 62%, rgba(10, 14, 26, 0) 100%),
+    radial-gradient(circle at right center, rgba(0, 212, 170, 0.06) 0%, rgba(0, 212, 170, 0.025) 32%, transparent 76%);
+}
+
+.custom-cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 180ms ease,
+    transform 110ms linear;
+}
+
+.custom-cursor.is-visible {
+  opacity: 1;
+}
+
+.custom-cursor__halo,
+.custom-cursor__core,
+.custom-cursor__spark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+}
+
+.custom-cursor__halo {
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(0, 212, 170, 0.38);
+  background:
+    radial-gradient(circle, rgba(0, 212, 170, 0.16) 0%, rgba(0, 212, 170, 0.02) 55%, transparent 100%);
+  box-shadow:
+    0 0 0 1px rgba(0, 212, 170, 0.06),
+    0 0 20px rgba(0, 212, 170, 0.15);
+}
+
+.custom-cursor__core {
+  width: 8px;
+  height: 8px;
+  background: #00d4aa;
+  box-shadow: 0 0 16px rgba(0, 212, 170, 0.85);
+}
+
+.custom-cursor__spark {
+  width: 14px;
+  height: 14px;
+  border: 1px solid rgba(0, 212, 170, 0.26);
+  transform: translate(-50%, -50%) rotate(45deg);
+  opacity: 0.7;
+}
+
+.custom-cursor.is-interactive .custom-cursor__halo {
+  width: 56px;
+  height: 56px;
+  border-color: rgba(0, 212, 170, 0.58);
+  box-shadow:
+    0 0 0 1px rgba(0, 212, 170, 0.1),
+    0 0 28px rgba(0, 212, 170, 0.22);
+}
+
+.custom-cursor.is-interactive .custom-cursor__core {
+  width: 10px;
+  height: 10px;
+}
+
+.custom-cursor.is-interactive .custom-cursor__spark {
+  width: 20px;
+  height: 20px;
+  opacity: 1;
+}
+
+@media (pointer: fine) {
+  .custom-cursor-enabled,
+  .custom-cursor-enabled a,
+  .custom-cursor-enabled button,
+  .custom-cursor-enabled [role="button"] {
+    cursor: none !important;
+  }
+}
+
+@media (max-width: 1279px) {
+  .marquee-row {
+    display: none;
+  }
+}
+
 /* ═══════════════════════════════════════════
    Sci-Fi Glass Card
    ═══════════════════════════════════════════ */

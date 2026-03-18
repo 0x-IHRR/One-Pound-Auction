@@ -15,6 +15,29 @@ import type {
 
 import { createBox, findBoxById, listBoxes, updateBox } from '../repositories/box.repository';
 
+function normalizeLivePayload(input: {
+    livePlatform?: CreateBoxInput['livePlatform'] | UpdateBoxInput['livePlatform'];
+    liveUrl?: CreateBoxInput['liveUrl'] | UpdateBoxInput['liveUrl'];
+    liveStartsAt?: CreateBoxInput['liveStartsAt'] | UpdateBoxInput['liveStartsAt'];
+    liveStatus?: CreateBoxInput['liveStatus'] | UpdateBoxInput['liveStatus'];
+}) {
+    if (!input.livePlatform && !input.liveUrl && !input.liveStartsAt && !input.liveStatus) {
+        return {
+            livePlatform: null,
+            liveUrl: null,
+            liveStartsAt: null,
+            liveStatus: null,
+        };
+    }
+
+    return {
+        livePlatform: input.livePlatform ?? null,
+        liveUrl: input.liveUrl ?? null,
+        liveStartsAt: input.liveStartsAt ?? null,
+        liveStatus: input.liveStatus ?? null,
+    };
+}
+
 function toSummary(box: MarketplaceBox): MarketplaceBoxSummary {
     const { hidden_content, ...summary } = box;
     void hidden_content;
@@ -112,6 +135,7 @@ export async function createMarketplaceBox(input: CreateBoxInput, user: CurrentU
     const created = await createBox({
         ...input,
         barter_demand: input.accepts_barter ? input.barter_demand : null,
+        ...normalizeLivePayload(input),
         authorEmail: user.email,
         authorName: user.name ?? null,
         sales_count: 0,
@@ -126,6 +150,12 @@ export async function updateMarketplaceBox(id: string, input: UpdateBoxInput, us
     const box = assertOwnedBox(await findBoxById(id), user);
     const acceptsBarter = input.accepts_barter ?? box.accepts_barter;
     const barterDemand = acceptsBarter ? input.barter_demand ?? box.barter_demand : null;
+    const normalizedLive = normalizeLivePayload({
+        livePlatform: input.livePlatform ?? box.livePlatform,
+        liveUrl: input.liveUrl ?? box.liveUrl,
+        liveStartsAt: input.liveStartsAt ?? box.liveStartsAt,
+        liveStatus: input.liveStatus ?? box.liveStatus,
+    });
 
     if (acceptsBarter && !barterDemand) {
         throw new AppError('VALIDATION_ERROR', '开启交换后必须填写交换诉求。', 400);
@@ -135,6 +165,7 @@ export async function updateMarketplaceBox(id: string, input: UpdateBoxInput, us
         ...input,
         accepts_barter: acceptsBarter,
         barter_demand: barterDemand,
+        ...normalizedLive,
         updatedAt: new Date(),
     });
 

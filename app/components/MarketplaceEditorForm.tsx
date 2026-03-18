@@ -8,22 +8,56 @@ import { getApiErrorMessage } from '@/shared/utils/get-api-error-message';
 import type {
     MarketplaceContentStatus,
     MarketplaceItemType,
+    MarketplaceLivePlatform,
+    MarketplaceLiveStatus,
 } from '@/features/marketplace/types/box';
 import StatusBadge from './StatusBadge';
+
+const livePlatformOptions: Array<{ value: MarketplaceLivePlatform; label: string }> = [
+    { value: 'ZOOM', label: 'Zoom' },
+    { value: 'X_SPACES', label: 'X Spaces' },
+    { value: 'OTHER', label: '其他直播平台' },
+];
+
+const liveStatusOptions: Array<{ value: MarketplaceLiveStatus; label: string }> = [
+    { value: 'SCHEDULED', label: '待开场' },
+    { value: 'LIVE', label: '直播中' },
+    { value: 'ENDED', label: '已结束' },
+];
+
+function toDateTimeLocalValue(value?: string | null) {
+    if (!value) {
+        return '';
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return '';
+    }
+
+    const offset = date.getTimezoneOffset();
+    const normalized = new Date(date.getTime() - offset * 60_000);
+    return normalized.toISOString().slice(0, 16);
+}
 
 interface MarketplaceEditorFormProps {
     mode: 'create' | 'edit';
     endpoint: string;
     redirectTo?: string;
-    initialValues?: {
-        itemType: MarketplaceItemType;
-        title: string;
-        hook_description: string;
-        hidden_content: string;
-        price: number;
-        accepts_barter: boolean;
-        barter_demand: string | null;
-    };
+        initialValues?: {
+            itemType: MarketplaceItemType;
+            title: string;
+            hook_description: string;
+            hidden_content: string;
+            price: number;
+            accepts_barter: boolean;
+            barter_demand: string | null;
+            livePlatform: MarketplaceLivePlatform | null;
+            liveUrl: string | null;
+            liveStartsAt: string | null;
+            liveStatus: MarketplaceLiveStatus | null;
+        };
     currentStatus?: MarketplaceContentStatus;
 }
 
@@ -46,6 +80,10 @@ export default function MarketplaceEditorForm({
         price: String(initialValues?.price ?? 1),
         accepts_barter: initialValues?.accepts_barter ?? false,
         barter_demand: initialValues?.barter_demand ?? '',
+        livePlatform: initialValues?.livePlatform ?? '',
+        liveUrl: initialValues?.liveUrl ?? '',
+        liveStartsAt: toDateTimeLocalValue(initialValues?.liveStartsAt),
+        liveStatus: initialValues?.liveStatus ?? '',
     });
 
     const submit = async (status?: Extract<MarketplaceContentStatus, 'DRAFT' | 'PUBLISHED'>) => {
@@ -60,6 +98,10 @@ export default function MarketplaceEditorForm({
                     ...formData,
                     price: Number(formData.price),
                     barter_demand: formData.accepts_barter ? formData.barter_demand : null,
+                    livePlatform: formData.livePlatform || null,
+                    liveUrl: formData.liveUrl.trim() ? formData.liveUrl.trim() : null,
+                    liveStartsAt: formData.liveStartsAt ? new Date(formData.liveStartsAt).toISOString() : null,
+                    liveStatus: formData.liveStatus || null,
                     ...(mode === 'create' ? { status } : {}),
                 }),
             });
@@ -199,6 +241,70 @@ export default function MarketplaceEditorForm({
                                     placeholder="写清你愿意交换什么，例如：一份运营复盘、一次简历修改。"
                                 />
                             ) : null}
+                        </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-white/10 bg-[#0d1220] p-5">
+                        <div className="mb-4">
+                            <h2 className="text-sm font-medium text-slate-100">直播拍卖入口</h2>
+                            <p className="mt-1 text-xs leading-6 text-slate-400">
+                                如果这条内容会在 Zoom、X Spaces 或别的平台里开拍，这里可以先把入口挂上。
+                            </p>
+                        </div>
+
+                        <div className="grid gap-5 md:grid-cols-2">
+                            <label className="grid gap-2">
+                                <span className="text-sm font-medium text-slate-200">直播平台</span>
+                                <select
+                                    value={formData.livePlatform}
+                                    onChange={(event) => setFormData((current) => ({ ...current, livePlatform: event.target.value }))}
+                                    className="rounded-2xl border border-white/10 bg-[#09101d] px-4 py-3 text-white outline-none transition focus:border-[#00d4aa]/40"
+                                >
+                                    <option value="">暂不接入直播</option>
+                                    {livePlatformOptions.map((option) => (
+                                        <option key={option.value} value={option.value}>
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </select>
+                            </label>
+
+                            <label className="grid gap-2">
+                                <span className="text-sm font-medium text-slate-200">直播状态</span>
+                                <select
+                                    value={formData.liveStatus}
+                                    onChange={(event) => setFormData((current) => ({ ...current, liveStatus: event.target.value }))}
+                                    className="rounded-2xl border border-white/10 bg-[#09101d] px-4 py-3 text-white outline-none transition focus:border-[#00d4aa]/40"
+                                >
+                                    <option value="">未设置</option>
+                                    {liveStatusOptions.map((option) => (
+                                        <option key={option.value} value={option.value}>
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </select>
+                            </label>
+
+                            <label className="grid gap-2 md:col-span-2">
+                                <span className="text-sm font-medium text-slate-200">直播链接</span>
+                                <input
+                                    type="url"
+                                    value={formData.liveUrl}
+                                    onChange={(event) => setFormData((current) => ({ ...current, liveUrl: event.target.value }))}
+                                    className="rounded-2xl border border-white/10 bg-[#09101d] px-4 py-3 text-white outline-none transition focus:border-[#00d4aa]/40"
+                                    placeholder="https://zoom.us/j/... 或 https://x.com/i/spaces/..."
+                                />
+                            </label>
+
+                            <label className="grid gap-2 md:col-span-2">
+                                <span className="text-sm font-medium text-slate-200">开场时间</span>
+                                <input
+                                    type="datetime-local"
+                                    value={formData.liveStartsAt}
+                                    onChange={(event) => setFormData((current) => ({ ...current, liveStartsAt: event.target.value }))}
+                                    className="rounded-2xl border border-white/10 bg-[#09101d] px-4 py-3 text-white outline-none transition focus:border-[#00d4aa]/40"
+                                />
+                            </label>
                         </div>
                     </div>
                 </div>

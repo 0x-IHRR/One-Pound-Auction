@@ -23,6 +23,10 @@ describe('createBoxInputSchema', () => {
             accepts_barter: false,
             barter_demand: null,
             status: 'DRAFT',
+            livePlatform: null,
+            liveUrl: null,
+            liveStartsAt: null,
+            liveStatus: null,
         });
     });
 
@@ -36,6 +40,10 @@ describe('createBoxInputSchema', () => {
             accepts_barter: true,
             barter_demand: '一次产品复盘',
             price: '2.5',
+            livePlatform: 'ZOOM',
+            liveUrl: 'https://zoom.us/j/1234567890',
+            liveStartsAt: '2026-03-20T12:30:00.000Z',
+            liveStatus: 'SCHEDULED',
         })).toEqual({
             itemType: 'WISH',
             title: '求产品建议',
@@ -45,6 +53,10 @@ describe('createBoxInputSchema', () => {
             accepts_barter: true,
             barter_demand: '一次产品复盘',
             status: 'PUBLISHED',
+            livePlatform: 'ZOOM',
+            liveUrl: 'https://zoom.us/j/1234567890',
+            liveStartsAt: new Date('2026-03-20T12:30:00.000Z'),
+            liveStatus: 'SCHEDULED',
         });
     });
 
@@ -55,6 +67,15 @@ describe('createBoxInputSchema', () => {
             hidden_content: '隐藏内容',
             accepts_barter: true,
         })).toThrow('开启交换后必须填写交换诉求。');
+    });
+
+    it('直播待开场时要求提供平台、链接和开始时间', () => {
+        expect(() => createBoxInputSchema.parse({
+            title: '标题',
+            hook_description: '描述',
+            hidden_content: '隐藏内容',
+            liveStatus: 'SCHEDULED',
+        })).toThrow();
     });
 });
 

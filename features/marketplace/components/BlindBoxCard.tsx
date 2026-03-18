@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Flame, Heart, Lightbulb, Package, Wrench } from 'lucide-react';
+import { ArrowRight, Flame, Heart, Lightbulb, Package, Radio, Wrench } from 'lucide-react';
 
 import type { MarketplaceBoxSummary } from '@/features/marketplace/types/box';
 
@@ -32,10 +32,13 @@ function detectCategory(box: BlindBoxData): { label: string; color: string; icon
 export default function BlindBoxCard({ box, href, featured = false }: BlindBoxCardProps) {
     const category = detectCategory(box);
     const CategoryIcon = category.icon;
+    const hasLiveEntry = Boolean(box.livePlatform && box.liveUrl && box.liveStatus !== 'ENDED');
+    const liveLabel = box.liveStatus === 'LIVE' ? '直播中' : '可进直播';
 
     return (
         <Link
             href={href}
+            data-cursor="interactive"
             className={`sci-fi-card flex h-[230px] cursor-pointer flex-col p-5 ${featured ? 'sci-fi-card-featured' : ''}`}
         >
             <div className="mb-3 flex items-center justify-between">
@@ -43,7 +46,15 @@ export default function BlindBoxCard({ box, href, featured = false }: BlindBoxCa
                     <CategoryIcon className="h-3 w-3" />
                     {category.label}
                 </span>
-                <span className="text-sm font-bold tabular-nums text-[#00d4aa]">¥{box.price.toFixed(2)}</span>
+                <div className="flex items-center gap-2">
+                    {hasLiveEntry ? (
+                        <span className="inline-flex items-center gap-1.5 rounded-md border border-rose-500/25 bg-rose-500/12 px-2.5 py-1 text-[11px] font-semibold text-rose-300">
+                            <Radio className="h-3 w-3" />
+                            {liveLabel}
+                        </span>
+                    ) : null}
+                    <span className="text-sm font-bold tabular-nums text-[#00d4aa]">¥{box.price.toFixed(2)}</span>
+                </div>
             </div>
 
             <h3 className="mb-2 line-clamp-2 text-[15px] font-semibold leading-snug tracking-tight text-foreground">

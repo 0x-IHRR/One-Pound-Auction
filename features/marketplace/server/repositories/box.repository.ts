@@ -7,6 +7,8 @@ import type {
     MarketplaceBox,
     MarketplaceContentStatus,
     MarketplaceItemType,
+    MarketplaceLivePlatform,
+    MarketplaceLiveStatus,
     UpdateBoxInput,
 } from '@/features/marketplace/types/box';
 
@@ -33,6 +35,22 @@ type BoxUpdateData = UpdateBoxInput & {
     updatedAt?: Date;
 };
 
+function normalizeLivePlatform(value: string | null | undefined): MarketplaceLivePlatform | null {
+    if (value === 'ZOOM' || value === 'X_SPACES' || value === 'OTHER') {
+        return value;
+    }
+
+    return null;
+}
+
+function normalizeLiveStatus(value: string | null | undefined): MarketplaceLiveStatus | null {
+    if (value === 'SCHEDULED' || value === 'LIVE' || value === 'ENDED') {
+        return value;
+    }
+
+    return null;
+}
+
 function normalizeItemType(value: string): MarketplaceItemType {
     return value === 'WISH' ? 'WISH' : 'OFFER';
 }
@@ -58,6 +76,10 @@ function mapBox(record: {
     authorEmail: string | null;
     authorName: string | null;
     status: string;
+    livePlatform: string | null;
+    liveUrl: string | null;
+    liveStartsAt: Date | null;
+    liveStatus: string | null;
     createdAt: Date;
     updatedAt: Date;
     publishedAt: Date | null;
@@ -73,6 +95,8 @@ function mapBox(record: {
         sales_count: _count?.unlockRecords ?? record.sales_count,
         itemType: normalizeItemType(record.itemType),
         status: normalizeStatus(record.status),
+        livePlatform: normalizeLivePlatform(record.livePlatform),
+        liveStatus: normalizeLiveStatus(record.liveStatus),
     };
 }
 
