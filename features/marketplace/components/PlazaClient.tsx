@@ -34,7 +34,7 @@ export default function PlazaClient({ initialBoxes, activeItemType, currentQuery
 
     return (
         <section className="w-full pb-20">
-            <div className="mb-8 flex flex-col gap-4 rounded-[28px] border border-white/8 bg-white/[0.03] p-5 backdrop-blur-sm md:flex-row md:items-center md:justify-between">
+            <div className="mx-auto mb-8 flex w-full max-w-3xl flex-col gap-4 rounded-[28px] border border-white/8 bg-white/[0.03] p-5 backdrop-blur-sm md:flex-row md:items-center md:justify-between">
                 <div className="flex flex-wrap items-center gap-2">
                     <Link
                         href={buildHref(undefined, currentQuery)}

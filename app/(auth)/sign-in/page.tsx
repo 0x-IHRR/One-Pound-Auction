@@ -41,7 +41,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
           <p className="mb-3 text-sm uppercase tracking-[0.3em] text-[#00d4aa]/80">AUTH USER</p>
           <h1 className="text-3xl font-black text-white">先确认你是谁，再进入创作区</h1>
           <p className="mt-3 text-sm leading-6 text-slate-400">
-            当前支持 Demo 登录和 Google 登录。登录后会保留会话，并根据邮箱白名单或演示身份决定是否拥有 ADMIN 权限。
+            公开 MVP 默认建议走 Google 登录；Demo 登录只保留给本地开发和演示环境。登录后会保留会话，并根据邮箱白名单或演示身份决定是否拥有 ADMIN 权限。
           </p>
 
           <div className="mt-6 rounded-2xl border border-white/8 bg-white/5 p-4 text-sm text-slate-300">
@@ -49,12 +49,34 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
             <span className="ml-2 rounded-full bg-[#00d4aa]/10 px-2 py-1 text-xs text-[#00d4aa]">{nextPath}</span>
           </div>
 
-          {demoAuthEnabled ? (
+          {googleAuthEnabled ? (
             <div className="mt-8 space-y-4">
+              <div className="rounded-2xl border border-[#00d4aa]/15 bg-[#00d4aa]/5 p-4">
+                <p className="text-xs uppercase tracking-[0.25em] text-[#00d4aa]/80">Google 登录</p>
+                <p className="mt-3 text-sm leading-6 text-slate-300">
+                  这是面向公网 MVP 的默认入口。用户使用自己的 Google 账号登录，系统再根据邮箱白名单决定是否展示管理员权限。
+                </p>
+              </div>
+
+              <form action={signInWithGoogleAction}>
+                <input type="hidden" name="next" value={nextPath} />
+                <button
+                  type="submit"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[#00d4aa]/30 bg-[#00d4aa]/10 px-4 py-4 text-sm font-semibold text-[#00d4aa] transition-all hover:bg-[#00d4aa]/20"
+                >
+                  <LogIn className="h-4 w-4" />
+                  使用 Google 登录
+                </button>
+              </form>
+            </div>
+          ) : null}
+
+          {demoAuthEnabled ? (
+            <div className="mt-4 space-y-4">
               <div className="rounded-2xl border border-white/8 bg-white/5 p-4">
                 <p className="text-xs uppercase tracking-[0.25em] text-slate-500">Demo 登录</p>
                 <p className="mt-3 text-sm leading-6 text-slate-300">
-                  用演示身份直接体验发布、购买和后台，不依赖第三方 OAuth 配置。
+                  用演示身份直接体验发布、购买和后台，不依赖第三方 OAuth 配置。建议只在本地开发或演示环境打开。
                 </p>
               </div>
 
@@ -92,22 +114,9 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
             </div>
           ) : null}
 
-          {googleAuthEnabled ? (
-            <form action={signInWithGoogleAction} className="mt-4">
-              <input type="hidden" name="next" value={nextPath} />
-              <button
-                type="submit"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[#00d4aa]/30 bg-[#00d4aa]/10 px-4 py-4 text-sm font-semibold text-[#00d4aa] transition-all hover:bg-[#00d4aa]/20"
-              >
-                <LogIn className="h-4 w-4" />
-                使用 Google 登录
-              </button>
-            </form>
-          ) : null}
-
           {!demoAuthEnabled && !googleAuthEnabled ? (
             <div className="mt-8 rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4 text-sm text-amber-200">
-              当前没有可用的登录方式，请先补齐 `.env` 中的认证配置。
+              当前没有可用的登录方式，请先补齐 `.env` 中的 Google OAuth 配置，或在本地把 `AUTH_DEMO_ENABLED=true` 打开。
             </div>
           ) : null}
         </section>

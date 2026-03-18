@@ -56,7 +56,7 @@ export default async function Home({
                     {liveHighlights.length > 0 ? (
                         <div className="flex justify-center">
                             <details className="group relative w-full max-w-sm">
-                                <summary className="flex list-none items-center justify-center gap-2 rounded-full border border-rose-500/22 bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-200 transition hover:border-rose-400/35 hover:bg-rose-500/16 [&::-webkit-details-marker]:hidden">
+                                <summary className="flex list-none items-center justify-center gap-2 rounded-full border border-rose-500/22 bg-rose-500/10 px-4 py-2 text-[15px] font-medium text-rose-200 transition hover:border-rose-400/35 hover:bg-rose-500/16 [&::-webkit-details-marker]:hidden">
                                     <Radio className="h-4 w-4" />
                                     直播拍卖入口
                                     <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-rose-500/18 px-1.5 py-0.5 text-[11px] font-semibold text-rose-100">

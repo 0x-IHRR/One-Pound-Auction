@@ -121,6 +121,42 @@ npm run db:seed
 
 如果你配置了 Google OAuth，也可以继续使用 Google 登录；Demo 登录只是为了保证 MVP 在本地和演示环境可直接跑通。
 
+## Google 登录配置
+
+如果你准备把这个 MVP 部署到公网，建议把 Google 登录作为正式入口，Demo 登录只保留给本地开发。
+
+1. 在 Google Cloud Console 创建一个 `OAuth 2.0 Client ID`
+   类型选择 `Web application`
+
+2. 配置允许的来源和回调地址
+
+- 本地开发 Origin：`http://localhost:3000`
+- 本地开发 Redirect URI：`http://localhost:3000/api/auth/callback/google`
+- 生产 Origin：你的正式域名，例如 `https://your-domain.com`
+- 生产 Redirect URI：`https://your-domain.com/api/auth/callback/google`
+
+3. 把凭证写入 `.env`
+
+```bash
+AUTH_GOOGLE_ID=your-google-client-id
+AUTH_GOOGLE_SECRET=your-google-client-secret
+AUTH_SECRET=replace-with-a-long-random-secret
+APP_BASE_URL=http://localhost:3000
+AUTH_ADMIN_EMAILS=admin@example.com
+```
+
+4. 如果你希望公网只保留 Google 登录，把 Demo 登录关闭
+
+```bash
+AUTH_DEMO_ENABLED=false
+```
+
+补充说明：
+
+- Google 登录接通后，`/sign-in` 页面会优先展示 Google 入口
+- 管理员权限不是由 Google 决定，而是由 `AUTH_ADMIN_EMAILS` 邮箱白名单决定
+- Google 回调路径固定为 `/api/auth/callback/google`，不要填成 `/auth/callback`
+
 ## 质量门槛
 
 在合并到 `main` 之前，必须通过以下检查：
