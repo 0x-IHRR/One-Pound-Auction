@@ -7,7 +7,14 @@
 - 模拟支付
 - 解锁隐藏内容
 
-当前仓库的重点不是扩业务，而是先把 demo 收敛成可持续演进的 foundation 底座，供后续 `auth-user`、`marketplace-content`、`order-payment-admin` 复用。
+当前主线已经合入：
+
+- `foundation`
+- `auth-user`
+- `marketplace-content`
+- `order-payment-admin`
+
+当前仓库的重点不是继续堆长期并行分支，而是把 `main` 收敛成唯一稳定基线。后续所有开发任务都应从最新 `main` 切出新分支，完成后再合回 `main`。
 
 ## 技术栈
 
@@ -33,12 +40,25 @@ npm ci
 cp ".env.example" ".env"
 ```
 
+如果你当前只做本地开发和 smoke test，至少保证 `.env` 中存在：
+
+- `DATABASE_URL`
+- `NODE_ENV`
+- `APP_BASE_URL`
+- `AUTH_SECRET`
+
 3. 生成 Prisma Client 并初始化数据库
 
 ```bash
 npm run db:generate
 npm run db:migrate
 npm run db:seed
+```
+
+如果你在开发新 schema 变更并需要生成迁移文件，请使用：
+
+```bash
+npm run db:migrate:dev -- --name <migration_name>
 ```
 
 4. 启动开发环境
@@ -51,10 +71,12 @@ npm run dev
 
 ## 数据库与 Seed
 
-- Prisma schema 使用 `DATABASE_URL` 驱动，本地默认数据库路径是 `prisma/dev.db`
+- Prisma schema 使用 `DATABASE_URL` 驱动；当前 `.env.example` 中的 `DATABASE_URL="file:./dev.db"` 会解析到 `prisma/dev.db`
 - 仓库长期只保留 `schema.prisma`、`migrations/`、`seed.ts`
 - SQLite 数据文件仅作为本地运行时资产，不再作为版本化资产提交
+- `npm run db:migrate` 用于在本地应用已有迁移；它不会创建新迁移文件
 - 正式 seed 入口只有一个：`npm run db:seed`
+- 鉴权相关环境变量统一通过 `.env` 提供；本地最小可运行配置至少需要 `AUTH_SECRET`
 
 常用命令：
 
@@ -63,6 +85,19 @@ npm run db:generate
 npm run db:migrate
 npm run db:seed
 ```
+
+## 启动验证
+
+初始化完成后，至少确认下面几条链路可用：
+
+- `/`
+- `/api/boxes`
+- `/boxes/:id`
+- `/creator`
+- `/me`
+- `/me/purchases`
+- `/api/orders`
+- `/admin`
 
 ## 质量门槛
 
@@ -85,3 +120,46 @@ npm run build
 
 - `docs/foundation-engineering-conventions.md`
 - `docs/module-branch-delivery-plan.md`
+
+## 常见问题
+
+### 1. `npm run db:migrate` 报 migration 相关错误
+
+先确认你使用的是最新主线代码，并且按顺序执行：
+
+```bash
+npm run db:generate
+npm run db:migrate
+npm run db:seed
+```
+
+当前主线已经补齐从 `BlindBox` 到 `AuctionItem` 的迁移链，空库初始化应当可以直接跑通。
+
+如果你本地正在开发新的 Prisma schema 变更，不要直接依赖 `npm run db:migrate` 生成迁移；请改用：
+
+```bash
+npm run db:migrate:dev -- --name <migration_name>
+```
+
+### 2. 首页或 `/api/boxes` 返回 500
+
+优先检查数据库是否已经初始化，以及 `.env` 是否存在：
+
+```bash
+cp ".env.example" ".env"
+npm run db:generate
+npm run db:migrate
+npm run db:seed
+```
+
+### 3. `next dev` 提示 `.next/dev/lock` 或端口被占用
+
+这是旧的开发进程没有退出，不是代码本身必然有问题。先停止旧的 `next dev` 进程，再重新启动。
+
+### 4. 运行时出现 `[auth][error] MissingSecret`
+
+说明 `.env` 缺少 `AUTH_SECRET`。请补上一个本地开发专用随机值，例如：
+
+```bash
+AUTH_SECRET=replace-with-a-local-dev-secret
+```

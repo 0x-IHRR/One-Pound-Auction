@@ -44,6 +44,11 @@ npm run db:migrate
 npm run db:seed
 ```
 
+- `.env.example` 中的 `DATABASE_URL="file:./dev.db"` 会被 Prisma 解析为 `prisma/dev.db`
 - 本地开发数据库路径固定为 `prisma/dev.db`
 - SQLite 文件不提交到仓库
+- `npm run db:migrate` 只负责应用仓库中已有迁移，确保新环境初始化稳定
+- 新增 schema 变更时，使用 `npm run db:migrate:dev -- --name <migration_name>` 生成迁移
 - `prisma/seed.ts` 是唯一正式 seed 入口
+- 所有新环境都必须先完成 migration，再写 seed，不允许直接依赖历史数据库快照
+- Auth.js 最小本地运行配置必须包含 `AUTH_SECRET`；Google 登录相关环境变量可按需补齐
