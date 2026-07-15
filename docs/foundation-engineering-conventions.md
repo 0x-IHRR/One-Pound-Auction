@@ -44,9 +44,9 @@ npm run db:migrate
 npm run db:seed
 ```
 
-- `.env.example` 中的 `DATABASE_URL="file:./dev.db"` 会被 Prisma 解析为 `prisma/dev.db`
-- 本地开发数据库路径固定为 `prisma/dev.db`
-- SQLite 文件不提交到仓库
+- `.env.example` 中的 `DATABASE_URL` 使用 PostgreSQL 连接串，和 `schema.prisma` 的 provider 保持一致
+- 旧 SQLite migrations 已归档到 `docs/migrations-archive/sqlite/`，只用于追溯历史，不再参与部署
+- 本地数据库文件、临时验证数据库和 Prisma 生成物不提交到仓库
 - `npm run db:migrate` 只负责应用仓库中已有迁移，确保新环境初始化稳定
 - 新增 schema 变更时，使用 `npm run db:migrate:dev -- --name <migration_name>` 生成迁移
 - `prisma/seed.ts` 是唯一正式 seed 入口

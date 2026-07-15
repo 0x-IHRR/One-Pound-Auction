@@ -4,6 +4,7 @@ import {
     createBoxInputSchema,
     listBoxesQuerySchema,
     purchaseBoxParamsSchema,
+    updateProblemStatusInputSchema,
     updateBoxInputSchema,
 } from '@/features/marketplace/schemas/box.schema';
 
@@ -118,5 +119,19 @@ describe('listBoxesQuerySchema', () => {
 describe('purchaseBoxParamsSchema', () => {
     it('要求 id 为非空字符串', () => {
         expect(() => purchaseBoxParamsSchema.parse({ id: ' ' })).toThrow();
+    });
+});
+
+describe('updateProblemStatusInputSchema', () => {
+    it('只允许合法的问题状态', () => {
+        expect(updateProblemStatusInputSchema.parse({
+            problemStatus: 'IN_PROGRESS',
+        })).toEqual({
+            problemStatus: 'IN_PROGRESS',
+        });
+
+        expect(() => updateProblemStatusInputSchema.parse({
+            problemStatus: 'DONE',
+        })).toThrow();
     });
 });

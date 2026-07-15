@@ -1,4 +1,5 @@
 import type { CurrentUser } from '@/app/lib/auth/session';
+import { isPaymentSimulationEnabled } from '@/shared/config/env';
 import { findBoxById } from '@/features/marketplace/server/repositories/box.repository';
 import {
     completeOrderPayment,
@@ -22,6 +23,14 @@ import { AppError } from '@/shared/errors';
 
 const SIMULATED_PROVIDER = 'SIMULATED';
 
+function assertPaymentSimulationEnabled() {
+    if (!isPaymentSimulationEnabled()) {
+        throw new AppError('CONFLICT', '公网环境暂未开放模拟支付，真实支付接入后再支持购买。', 409, {
+            provider: SIMULATED_PROVIDER,
+        });
+    }
+}
+
 function mapPurchaseSummary(order: OrderRecord): PurchaseSummary {
     return {
         orderId: order.id,
@@ -44,6 +53,8 @@ function mapPurchaseSummary(order: OrderRecord): PurchaseSummary {
 }
 
 export async function createOrder(input: CreateOrderInput, user: CurrentUser): Promise<CreateOrderResult> {
+    assertPaymentSimulationEnabled();
+
     const box = await findBoxById(input.itemId);
 
     if (!box || box.deletedAt || box.status === 'DELETED') {
@@ -52,6 +63,13 @@ export async function createOrder(input: CreateOrderInput, user: CurrentUser): P
 
     if (box.status !== 'PUBLISHED') {
         throw new AppError('CONFLICT', '当前内容不可购买。', 409, { itemId: input.itemId, status: box.status });
+    }
+
+    if (box.fulfillmentMode === 'FREE_HELP_REQUEST') {
+        throw new AppError('CONFLICT', '这是一条免费问题收集请求，不支持购买解锁。', 409, {
+            itemId: input.itemId,
+            fulfillmentMode: box.fulfillmentMode,
+        });
     }
 
     if (!box.authorEmail) {
@@ -81,6 +99,8 @@ export async function createOrder(input: CreateOrderInput, user: CurrentUser): P
 }
 
 export async function payOrder(orderId: string, user: CurrentUser): Promise<PayOrderResult> {
+    assertPaymentSimulationEnabled();
+
     const order = await findOrderById(orderId);
 
     if (!order) {
@@ -118,6 +138,10 @@ export async function payOrder(orderId: string, user: CurrentUser): Promise<PayO
 }
 
 export async function processPaymentCallback(input: PaymentCallbackInput): Promise<PayOrderResult> {
+    if (input.provider === SIMULATED_PROVIDER) {
+        assertPaymentSimulationEnabled();
+    }
+
     const order = await findOrderById(input.orderId);
 
     if (!order) {

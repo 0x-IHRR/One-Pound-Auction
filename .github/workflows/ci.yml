@@ -7,8 +7,22 @@ on:
 jobs:
   quality:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: one_pound_auction
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d one_pound_auction"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 15
     env:
-      DATABASE_URL: file:./dev.db
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/one_pound_auction?schema=public
       NODE_ENV: test
       APP_BASE_URL: http://localhost:3000
     steps:
@@ -27,11 +41,23 @@ jobs:
       - name: Prisma generate
         run: npx prisma generate
 
+      - name: Prisma validate
+        run: npx prisma validate
+
+      - name: Apply database migrations
+        run: npm run db:migrate
+
+      - name: Verify migration paths
+        run: npm run test:migrations
+
       - name: Lint
         run: npm run lint
 
       - name: Test
         run: npm test
+
+      - name: Integration test
+        run: npm run test:integration
 
       - name: Build
         run: npm run build

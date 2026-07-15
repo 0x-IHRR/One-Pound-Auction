@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const boxRepositoryMocks = vi.hoisted(() => ({
     findBoxById: vi.fn(),
@@ -42,6 +42,16 @@ function makeBox(overrides: Record<string, unknown> = {}) {
         authorEmail: 'seller@example.com',
         authorName: 'Seller',
         status: 'PUBLISHED',
+        livePlatform: null,
+        liveUrl: null,
+        liveStartsAt: null,
+        liveStatus: null,
+        fulfillmentMode: 'PAID_UNLOCK',
+        problemStatus: null,
+        sourceType: 'CREATOR',
+        submitterContact: null,
+        submitterContext: null,
+        sourceUrl: null,
         createdAt: now,
         updatedAt: now,
         publishedAt: now,
@@ -102,6 +112,23 @@ describe('order payment service', () => {
         orderRepositoryMocks.findLatestUnlockRecord.mockResolvedValue(null);
     });
 
+    afterEach(() => {
+        vi.unstubAllEnvs();
+    });
+
+    it('生产环境默认关闭模拟下单且不会写入订单', async () => {
+        vi.stubEnv('NODE_ENV', 'production');
+        vi.stubEnv('PAYMENT_SIMULATION_ENABLED', '');
+
+        await expect(createOrder({ itemId: 'box-1' }, currentUser)).rejects.toMatchObject({
+            code: 'CONFLICT',
+            status: 409,
+        });
+
+        expect(boxRepositoryMocks.findBoxById).not.toHaveBeenCalled();
+        expect(orderRepositoryMocks.createOrderWithPayment).not.toHaveBeenCalled();
+    });
+
     it('下单时拒绝购买自己发布的内容', async () => {
         boxRepositoryMocks.findBoxById.mockResolvedValue(makeBox({
             authorEmail: 'buyer@example.com',
@@ -122,6 +149,23 @@ describe('order payment service', () => {
             code: 'CONFLICT',
             status: 409,
         });
+    });
+
+    it('下单时拒绝免费问题请求', async () => {
+        boxRepositoryMocks.findBoxById.mockResolvedValue(makeBox({
+            itemType: 'WISH',
+            price: 0,
+            fulfillmentMode: 'FREE_HELP_REQUEST',
+            problemStatus: 'OPEN',
+            authorEmail: null,
+        }));
+
+        await expect(createOrder({ itemId: 'box-1' }, currentUser)).rejects.toMatchObject({
+            code: 'CONFLICT',
+            status: 409,
+        });
+
+        expect(orderRepositoryMocks.createOrderWithPayment).not.toHaveBeenCalled();
     });
 
     it('下单成功时创建订单和支付记录', async () => {
@@ -156,6 +200,40 @@ describe('order payment service', () => {
             code: 'FORBIDDEN',
             status: 403,
         });
+    });
+
+    it('生产环境默认关闭模拟支付且不会读取或更新订单', async () => {
+        vi.stubEnv('NODE_ENV', 'production');
+        vi.stubEnv('PAYMENT_SIMULATION_ENABLED', '');
+
+        await expect(payOrder('order-1', currentUser)).rejects.toMatchObject({
+            code: 'CONFLICT',
+            status: 409,
+        });
+
+        expect(orderRepositoryMocks.findOrderById).not.toHaveBeenCalled();
+        expect(orderRepositoryMocks.completeOrderPayment).not.toHaveBeenCalled();
+    });
+
+    it('生产环境默认关闭模拟回调且不会写入解锁记录', async () => {
+        vi.stubEnv('NODE_ENV', 'production');
+        vi.stubEnv('PAYMENT_SIMULATION_ENABLED', '');
+
+        await expect(processPaymentCallback({
+            orderId: 'order-1',
+            provider: 'SIMULATED',
+            providerTradeNo: 'sim-order-1',
+            status: 'SUCCEEDED',
+            amount: 9.9,
+            callbackPayload: '{}',
+        })).rejects.toMatchObject({
+            code: 'CONFLICT',
+            status: 409,
+        });
+
+        expect(orderRepositoryMocks.findOrderById).not.toHaveBeenCalled();
+        expect(orderRepositoryMocks.completeOrderPayment).not.toHaveBeenCalled();
+        expect(orderRepositoryMocks.failOrderPayment).not.toHaveBeenCalled();
     });
 
     it('支付成功回调已处理过时返回幂等结果', async () => {

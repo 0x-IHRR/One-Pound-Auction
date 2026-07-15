@@ -21,6 +21,12 @@ model AuctionItem {
   liveUrl          String?
   liveStartsAt     DateTime?
   liveStatus       String?
+  fulfillmentMode  String   @default("PAID_UNLOCK")
+  problemStatus    String?
+  sourceType       String   @default("CREATOR")
+  submitterContact String?
+  submitterContext String?
+  sourceUrl        String?
 
   // Barter options
   accepts_barter   Boolean  @default(false)
@@ -38,6 +44,8 @@ model AuctionItem {
   @@index([authorEmail, status])
   @@index([itemType, status])
   @@index([liveStatus, liveStartsAt])
+  @@index([fulfillmentMode, problemStatus])
+  @@index([sourceType, createdAt])
 }
 
 model ActivityLog {

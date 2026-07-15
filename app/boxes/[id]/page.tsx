@@ -63,6 +63,15 @@ export default async function BoxDetailPage({
                         <span className="text-xs uppercase tracking-[0.22em] text-slate-500">
                             {content.itemType === 'OFFER' ? '夜市内容' : '许愿池内容'}
                         </span>
+                        {content.fulfillmentMode === 'FREE_HELP_REQUEST' ? (
+                            <span className="rounded-full border border-[#00d4aa]/25 bg-[#00d4aa]/10 px-2.5 py-1 text-xs font-medium text-[#00d4aa]">
+                                {content.problemStatus === 'SOLVED'
+                                    ? '已解决'
+                                    : content.problemStatus === 'IN_PROGRESS'
+                                        ? '处理中'
+                                        : '待处理'}
+                            </span>
+                        ) : null}
                     </div>
                     <h1 className="mt-5 text-4xl font-black tracking-tight text-white">{content.title}</h1>
                     <p className="mt-5 text-lg leading-8 text-slate-300">{content.hook_description}</p>

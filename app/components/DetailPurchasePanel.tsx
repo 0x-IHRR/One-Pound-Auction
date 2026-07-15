@@ -12,6 +12,24 @@ interface DetailPurchasePanelProps {
 export default function DetailPurchasePanel({ content }: DetailPurchasePanelProps) {
     const [isPaymentOpen, setIsPaymentOpen] = useState(false);
 
+    if (content.fulfillmentMode === 'FREE_HELP_REQUEST') {
+        const statusLabel = content.problemStatus === 'SOLVED'
+            ? '已解决'
+            : content.problemStatus === 'IN_PROGRESS'
+                ? '处理中'
+                : '等待处理';
+
+        return (
+            <aside className="rounded-3xl border border-[#00d4aa]/20 bg-[#00d4aa]/5 p-6">
+                <p className="text-xs uppercase tracking-[0.24em] text-[#00d4aa]/70">免费问题请求</p>
+                <p className="mt-4 text-2xl font-black text-white">{statusLabel}</p>
+                <p className="mt-4 text-sm leading-6 text-slate-300">
+                    这条内容来自公开问题收集器，不需要支付，也不会展示购买入口。我会按真实程度、具体程度和可复用价值挑选处理。
+                </p>
+            </aside>
+        );
+    }
+
     if (content.isUnlocked && content.hidden_content) {
         return <ContentReveal content={content.hidden_content} onReset={() => setIsPaymentOpen(false)} />;
     }
@@ -38,7 +56,7 @@ export default function DetailPurchasePanel({ content }: DetailPurchasePanelProp
     if (!content.canPurchase) {
         return (
             <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-slate-300">
-                当前内容已存在你的解锁记录或暂不可购买，可前往“我的购买”查看。
+                当前公网暂未开放支付解锁。你可以先提交真实卡点，付费内容会在真实 payment 接入后重新开放。
             </div>
         );
     }

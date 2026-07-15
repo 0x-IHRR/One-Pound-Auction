@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { ShieldCheck } from 'lucide-react';
 
+import AdminProblemStatusControl from '@/app/components/AdminProblemStatusControl';
 import AdminUnlistButton from '@/app/components/AdminUnlistButton';
 import StatusBadge from '@/app/components/StatusBadge';
 import { isAuthGuardError, requireAdmin } from '@/app/lib/auth/guards';
@@ -120,17 +121,51 @@ export default async function AdminPage() {
                                         <span className="text-xs uppercase tracking-[0.22em] text-slate-500">
                                             {content.itemType === 'OFFER' ? '夜市' : '许愿池'}
                                         </span>
+                                        {content.fulfillmentMode === 'FREE_HELP_REQUEST' ? (
+                                            <span className="rounded-full border border-[#00d4aa]/25 bg-[#00d4aa]/10 px-2.5 py-1 text-xs font-medium text-[#00d4aa]">
+                                                问题收集器
+                                            </span>
+                                        ) : null}
                                     </div>
                                     <h3 className="mt-4 text-xl font-semibold text-white">{content.title}</h3>
+                                    <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
+                                        {content.hook_description}
+                                    </p>
                                     <div className="mt-4 flex flex-wrap gap-4 text-sm text-slate-400">
                                         <span>作者 {content.authorName ?? content.authorEmail ?? '匿名历史内容'}</span>
-                                        <span>销量 {content.sales_count}</span>
+                                        <span>
+                                            {content.fulfillmentMode === 'FREE_HELP_REQUEST'
+                                                ? `状态 ${content.problemStatus ?? 'OPEN'}`
+                                                : `销量 ${content.sales_count}`}
+                                        </span>
                                         <span>
                                             发布时间 {content.publishedAt ? new Date(content.publishedAt).toLocaleString('zh-CN') : '未发布'}
                                         </span>
                                     </div>
+                                    {content.fulfillmentMode === 'FREE_HELP_REQUEST' ? (
+                                        <div className="mt-4 grid gap-2 rounded-2xl border border-white/8 bg-[#0d1220]/70 p-4 text-sm text-slate-300">
+                                            <p>联系方式：{content.submitterContact ?? '未提供'}</p>
+                                            <p>补充背景：{content.submitterContext ?? '未提供'}</p>
+                                            {content.sourceUrl ? (
+                                                <a
+                                                    href={content.sourceUrl}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="text-[#00d4aa] transition hover:text-white"
+                                                >
+                                                    相关链接：{content.sourceUrl}
+                                                </a>
+                                            ) : null}
+                                        </div>
+                                    ) : null}
                                 </div>
-                                <div className="flex items-start">
+                                <div className="flex flex-col items-start gap-3">
+                                    {content.fulfillmentMode === 'FREE_HELP_REQUEST' ? (
+                                        <AdminProblemStatusControl
+                                            boxId={content.id}
+                                            value={content.problemStatus ?? 'OPEN'}
+                                        />
+                                    ) : null}
                                     <AdminUnlistButton boxId={content.id} disabled={content.status !== 'PUBLISHED'} />
                                 </div>
                             </article>

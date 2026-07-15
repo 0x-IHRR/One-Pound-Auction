@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const repositoryMocks = vi.hoisted(() => ({
     createBox: vi.fn(),
@@ -17,9 +17,11 @@ vi.mock('@/features/marketplace/server/repositories/box.repository', () => repos
 vi.mock('@/features/order-payment/server/services/order.service', () => orderServiceMocks);
 
 import {
+    adminUpdateProblemStatus,
     createMarketplaceBox,
     deleteMarketplaceBox,
     getMarketplaceBoxDetail,
+    listAdminMarketplaceBoxes,
     listMarketplaceBoxes,
     publishMarketplaceBox,
     purchaseMarketplaceBox,
@@ -47,6 +49,12 @@ function makeBox(overrides: Record<string, unknown> = {}) {
             liveUrl: null,
             liveStartsAt: null,
             liveStatus: null,
+            fulfillmentMode: 'PAID_UNLOCK',
+            problemStatus: null,
+            sourceType: 'CREATOR',
+            submitterContact: null,
+            submitterContext: null,
+            sourceUrl: null,
             createdAt: now,
             updatedAt: now,
             publishedAt: now,
@@ -65,6 +73,10 @@ describe('marketplace box service', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         orderServiceMocks.hasUnlockedBox.mockResolvedValue(false);
+    });
+
+    afterEach(() => {
+        vi.unstubAllEnvs();
     });
 
     it('创建内容时写入作者归属并返回作者详情', async () => {
@@ -104,6 +116,8 @@ describe('marketplace box service', () => {
             authorEmail: 'owner@example.com',
             authorName: 'Owner',
             barter_demand: null,
+            fulfillmentMode: 'PAID_UNLOCK',
+            sourceType: 'CREATOR',
             publishedAt: null,
             livePlatform: 'ZOOM',
             liveUrl: 'https://zoom.us/j/1234567890',
@@ -123,6 +137,36 @@ describe('marketplace box service', () => {
             q: '简历',
             authorEmail: undefined,
             statuses: ['PUBLISHED'],
+        });
+    });
+
+    it('公开列表和详情隐藏提交者私密信息，管理员列表保留', async () => {
+        const problem = makeBox({
+            itemType: 'WISH',
+            fulfillmentMode: 'FREE_HELP_REQUEST',
+            problemStatus: 'OPEN',
+            sourceType: 'SOCIAL_COLLECTOR',
+            submitterContact: 'private@example.com',
+            submitterContext: '内部项目背景',
+            sourceUrl: 'https://example.com/private-context',
+        });
+        repositoryMocks.listBoxes.mockResolvedValue([problem]);
+        repositoryMocks.findBoxById.mockResolvedValue(problem);
+
+        const [publicSummary] = await listMarketplaceBoxes({});
+        const publicDetail = await getMarketplaceBoxDetail('box-1', null);
+        const [adminSummary] = await listAdminMarketplaceBoxes();
+
+        expect(publicSummary).not.toHaveProperty('submitterContact');
+        expect(publicSummary).not.toHaveProperty('submitterContext');
+        expect(publicSummary).not.toHaveProperty('sourceUrl');
+        expect(publicDetail).not.toHaveProperty('submitterContact');
+        expect(publicDetail).not.toHaveProperty('submitterContext');
+        expect(publicDetail).not.toHaveProperty('sourceUrl');
+        expect(adminSummary).toMatchObject({
+            submitterContact: 'private@example.com',
+            submitterContext: '内部项目背景',
+            sourceUrl: 'https://example.com/private-context',
         });
     });
 
@@ -238,6 +282,62 @@ describe('marketplace box service', () => {
             isUnlocked: true,
             hidden_content: '隐藏内容',
         });
+    });
+
+    it('生产环境默认关闭模拟购买入口', async () => {
+        vi.stubEnv('NODE_ENV', 'production');
+        vi.stubEnv('PAYMENT_SIMULATION_ENABLED', '');
+        repositoryMocks.findBoxById.mockResolvedValue(makeBox());
+
+        await expect(getMarketplaceBoxDetail('box-1', {
+            email: 'buyer@example.com',
+            name: 'Buyer',
+            role: 'USER',
+        })).resolves.toMatchObject({
+            canPurchase: false,
+            hidden_content: undefined,
+        });
+    });
+
+    it('免费问题请求详情不会开放购买', async () => {
+        repositoryMocks.findBoxById.mockResolvedValue(makeBox({
+            itemType: 'WISH',
+            price: 0,
+            fulfillmentMode: 'FREE_HELP_REQUEST',
+            problemStatus: 'OPEN',
+            sourceType: 'SOCIAL_COLLECTOR',
+            authorEmail: null,
+            authorName: '匿名提问者',
+        }));
+
+        await expect(getMarketplaceBoxDetail('box-1', null)).resolves.toMatchObject({
+            fulfillmentMode: 'FREE_HELP_REQUEST',
+            problemStatus: 'OPEN',
+            canPurchase: false,
+            hidden_content: undefined,
+        });
+    });
+
+    it('管理员可以更新问题收集器状态', async () => {
+        repositoryMocks.findBoxById.mockResolvedValue(makeBox({
+            itemType: 'WISH',
+            fulfillmentMode: 'FREE_HELP_REQUEST',
+            problemStatus: 'OPEN',
+        }));
+        repositoryMocks.updateBox.mockResolvedValue(makeBox({
+            itemType: 'WISH',
+            fulfillmentMode: 'FREE_HELP_REQUEST',
+            problemStatus: 'SOLVED',
+        }));
+
+        await expect(adminUpdateProblemStatus('box-1', 'SOLVED')).resolves.toMatchObject({
+            problemStatus: 'SOLVED',
+        });
+
+        expect(repositoryMocks.updateBox).toHaveBeenCalledWith('box-1', expect.objectContaining({
+            problemStatus: 'SOLVED',
+            updatedAt: expect.any(Date),
+        }));
     });
 
     it('兼容购买入口委托订单域处理支付', async () => {

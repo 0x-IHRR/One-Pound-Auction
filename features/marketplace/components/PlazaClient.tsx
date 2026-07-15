@@ -71,13 +71,22 @@ export default function PlazaClient({ initialBoxes, activeItemType, currentQuery
                     </Link>
                 </div>
 
-                <Link
-                    href="/creator"
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-[#00d4aa]/30 bg-[#00d4aa]/10 px-4 py-2 text-sm font-medium text-[#00d4aa] transition hover:bg-[#00d4aa]/20"
-                >
-                    <Plus className="h-4 w-4" />
-                    挂个新摊
-                </Link>
+                <div className="flex flex-wrap items-center gap-2">
+                    <Link
+                        href="/ask"
+                        className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-[#00d4aa]/30 hover:text-[#00d4aa]"
+                    >
+                        <Sparkles className="h-4 w-4" />
+                        免费提交卡点
+                    </Link>
+                    <Link
+                        href="/creator"
+                        className="inline-flex items-center justify-center gap-2 rounded-full border border-[#00d4aa]/30 bg-[#00d4aa]/10 px-4 py-2 text-sm font-medium text-[#00d4aa] transition hover:bg-[#00d4aa]/20"
+                    >
+                        <Plus className="h-4 w-4" />
+                        挂个新摊
+                    </Link>
+                </div>
             </div>
 
             {initialBoxes.length > 0 ? (

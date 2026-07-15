@@ -5,6 +5,7 @@ import {
     marketplaceItemTypes,
     marketplaceLivePlatforms,
     marketplaceLiveStatuses,
+    marketplaceProblemStatuses,
 } from '@/features/marketplace/types/box';
 
 const requiredText = z.string().trim().min(1, '该字段不能为空。');
@@ -182,3 +183,7 @@ export const boxIdParamsSchema = z.object({
 });
 
 export const purchaseBoxParamsSchema = boxIdParamsSchema;
+
+export const updateProblemStatusInputSchema = z.object({
+    problemStatus: z.enum(marketplaceProblemStatuses),
+});

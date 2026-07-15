@@ -14,6 +14,10 @@ interface BlindBoxCardProps {
 function detectCategory(box: BlindBoxData): { label: string; color: string; icon: typeof Flame } {
     const text = `${box.title}${box.hook_description}`.toLowerCase();
 
+    if (box.fulfillmentMode === 'FREE_HELP_REQUEST') {
+        return { label: '问题', color: 'bg-[#00d4aa]/15 text-[#00d4aa] border-[#00d4aa]/25', icon: Heart };
+    }
+
     if (box.itemType === 'WISH') {
         return { label: '悬赏', color: 'bg-purple-500/15 text-purple-400 border-purple-500/25', icon: Heart };
     }
@@ -34,6 +38,11 @@ export default function BlindBoxCard({ box, href, featured = false }: BlindBoxCa
     const CategoryIcon = category.icon;
     const hasLiveEntry = Boolean(box.livePlatform && box.liveUrl && box.liveStatus !== 'ENDED');
     const liveLabel = box.liveStatus === 'LIVE' ? '直播中' : '可进直播';
+    const problemStatusLabel = box.problemStatus === 'SOLVED'
+        ? '已解决'
+        : box.problemStatus === 'IN_PROGRESS'
+            ? '处理中'
+            : '待处理';
 
     return (
         <Link
@@ -53,7 +62,9 @@ export default function BlindBoxCard({ box, href, featured = false }: BlindBoxCa
                             {liveLabel}
                         </span>
                     ) : null}
-                    <span className="text-sm font-bold tabular-nums text-[#00d4aa]">¥{box.price.toFixed(2)}</span>
+                    <span className="text-sm font-bold tabular-nums text-[#00d4aa]">
+                        {box.fulfillmentMode === 'FREE_HELP_REQUEST' ? problemStatusLabel : `¥${box.price.toFixed(2)}`}
+                    </span>
                 </div>
             </div>
 
@@ -68,7 +79,9 @@ export default function BlindBoxCard({ box, href, featured = false }: BlindBoxCa
             <div className="mt-auto flex items-center justify-between border-t border-[#1e3a5f]/40 pt-2.5">
                 <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
                     <Flame className="h-3 w-3 text-orange-400" />
-                    已有 {box.sales_count} 人揭榜/购买
+                    {box.fulfillmentMode === 'FREE_HELP_REQUEST'
+                        ? '公开问题池'
+                        : `已有 ${box.sales_count} 人揭榜/购买`}
                 </div>
                 <span className="flex items-center gap-1 rounded-md border border-[#00d4aa]/15 bg-[#00d4aa]/10 px-2.5 py-1 text-[11px] font-medium text-[#00d4aa]">
                     查看详情

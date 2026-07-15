@@ -23,7 +23,7 @@
 - TypeScript
 - Tailwind CSS 4
 - Prisma 5
-- SQLite
+- PostgreSQL
 - Vitest
 
 ## 本地启动
@@ -47,14 +47,25 @@ cp ".env.example" ".env"
 - `APP_BASE_URL`
 - `AUTH_SECRET`
 
-默认模板已经开启 Demo 登录，开箱即用；如果你要关闭演示登录，再手动把 `AUTH_DEMO_ENABLED=false`。
+默认模板使用 PostgreSQL，并开启 Demo 登录和模拟支付，适合本地演示。公网部署时必须关闭 Demo 登录和模拟支付，见 `docs/public-launch-checklist.md`。
 
-3. 生成 Prisma Client 并初始化数据库
+3. 准备 PostgreSQL 数据库
+
+使用仓库内置的 Docker Compose 启动本地 PostgreSQL：
+
+```bash
+npm run db:up
+```
+
+如果本机已经有 PostgreSQL，可跳过这一步，并确保 `.env` 中的 `DATABASE_URL` 指向可连接的开发库。公网建议使用托管 Postgres。
+
+4. 生成 Prisma Client 并初始化数据库
 
 ```bash
 npm run db:generate
 npm run db:migrate
 npm run db:seed
+npm run db:down
 ```
 
 如果你在开发新 schema 变更并需要生成迁移文件，请使用：
@@ -63,7 +74,7 @@ npm run db:seed
 npm run db:migrate:dev -- --name <migration_name>
 ```
 
-4. 启动开发环境
+5. 启动开发环境
 
 ```bash
 npm run dev
@@ -73,9 +84,9 @@ npm run dev
 
 ## 数据库与 Seed
 
-- Prisma schema 使用 `DATABASE_URL` 驱动；当前 `.env.example` 中的 `DATABASE_URL="file:./dev.db"` 会解析到 `prisma/dev.db`
+- Prisma schema 使用 `DATABASE_URL` 驱动；当前正式口径是 PostgreSQL
 - 仓库长期只保留 `schema.prisma`、`migrations/`、`seed.ts`
-- SQLite 数据文件仅作为本地运行时资产，不再作为版本化资产提交
+- 旧 SQLite migration 已归档到 `docs/migrations-archive/sqlite/`，不再作为公网部署迁移链
 - `npm run db:migrate` 用于在本地应用已有迁移；它不会创建新迁移文件
 - 正式 seed 入口只有一个：`npm run db:seed`
 - 鉴权相关环境变量统一通过 `.env` 提供；本地最小可运行配置至少需要 `AUTH_SECRET`
@@ -149,6 +160,7 @@ AUTH_ADMIN_EMAILS=admin@example.com
 
 ```bash
 AUTH_DEMO_ENABLED=false
+PAYMENT_SIMULATION_ENABLED=false
 ```
 
 补充说明：
@@ -164,6 +176,8 @@ AUTH_DEMO_ENABLED=false
 ```bash
 npm run lint
 npm test
+npm run test:integration
+npm run test:migrations
 npm run build
 ```
 
@@ -178,6 +192,8 @@ npm run build
 
 - `docs/foundation-engineering-conventions.md`
 - `docs/module-branch-delivery-plan.md`
+- `docs/payment-integration-decision.md`
+- `docs/public-launch-checklist.md`
 
 ## 常见问题
 

@@ -43,6 +43,14 @@ vi.mock('@/app/components/AdminUnlistButton', () => ({
     ),
 }));
 
+vi.mock('@/app/components/AdminProblemStatusControl', () => ({
+    default: ({ boxId, value }: { boxId: string; value: string }) => (
+        <select data-box-id={boxId} defaultValue={value}>
+            <option value={value}>{value}</option>
+        </select>
+    ),
+}));
+
 vi.mock('@/app/components/StatusBadge', () => ({
     default: ({ status }: { status: string }) => <span>{status}</span>,
 }));
@@ -111,6 +119,41 @@ describe('admin page', () => {
                 authorEmail: 'seller@example.com',
                 authorName: 'Seller',
                 status: 'PUBLISHED',
+                livePlatform: null,
+                liveUrl: null,
+                liveStartsAt: null,
+                liveStatus: null,
+                fulfillmentMode: 'PAID_UNLOCK',
+                problemStatus: null,
+                sourceType: 'CREATOR',
+                sourceUrl: null,
+                createdAt: new Date('2026-03-10T08:00:00.000Z'),
+                updatedAt: new Date('2026-03-10T08:00:00.000Z'),
+                publishedAt: new Date('2026-03-10T08:00:00.000Z'),
+                deletedAt: null,
+            },
+            {
+                id: 'box-collector-1',
+                itemType: 'WISH',
+                title: '作品集没人看',
+                hook_description: '用户打开第一页就关闭',
+                price: 0,
+                accepts_barter: false,
+                barter_demand: null,
+                sales_count: 0,
+                authorEmail: null,
+                authorName: '匿名提问者',
+                status: 'PUBLISHED',
+                livePlatform: null,
+                liveUrl: null,
+                liveStartsAt: null,
+                liveStatus: null,
+                fulfillmentMode: 'FREE_HELP_REQUEST',
+                problemStatus: 'OPEN',
+                sourceType: 'SOCIAL_COLLECTOR',
+                sourceUrl: 'https://example.com/work',
+                submitterContact: 'me@example.com',
+                submitterContext: '这是私密补充',
                 createdAt: new Date('2026-03-10T08:00:00.000Z'),
                 updatedAt: new Date('2026-03-10T08:00:00.000Z'),
                 publishedAt: new Date('2026-03-10T08:00:00.000Z'),
@@ -163,6 +206,9 @@ describe('admin page', () => {
 
         expect(html).toContain('最小后台');
         expect(html).toContain('前端模板');
+        expect(html).toContain('作品集没人看');
+        expect(html).toContain('me@example.com');
+        expect(html).toContain('这是私密补充');
         expect(html).toContain('Buyer');
         expect(html).toContain('异常订单');
         expect(html).toContain('Stuck Buyer');

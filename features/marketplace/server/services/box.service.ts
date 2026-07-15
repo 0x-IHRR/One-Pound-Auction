@@ -1,8 +1,10 @@
 import { AppError } from '@/shared/errors';
+import { isPaymentSimulationEnabled } from '@/shared/config/env';
 import type { CurrentUser } from '@/app/lib/auth/session';
 import { createOrder, payOrder, hasUnlockedBox } from '@/features/order-payment/server/services/order.service';
 import type {
     CreateBoxInput,
+    AdminMarketplaceBoxSummary,
     ListMarketplaceBoxesQuery,
     MarketplaceBox,
     MarketplaceBoxDetail,
@@ -39,18 +41,33 @@ function normalizeLivePayload(input: {
 }
 
 function toSummary(box: MarketplaceBox): MarketplaceBoxSummary {
+    const { hidden_content, submitterContact, submitterContext, sourceUrl, ...summary } = box;
+    void hidden_content;
+    void submitterContact;
+    void submitterContext;
+    void sourceUrl;
+    return summary;
+}
+
+function toAdminSummary(box: MarketplaceBox): AdminMarketplaceBoxSummary {
     const { hidden_content, ...summary } = box;
     void hidden_content;
     return summary;
 }
 
 function toDetail(box: MarketplaceBox, isOwner: boolean, isUnlocked: boolean): MarketplaceBoxDetail {
+    const canUseSimulatedPurchase = isPaymentSimulationEnabled();
+
     return {
         ...toSummary(box),
         hidden_content: isOwner || isUnlocked ? box.hidden_content : undefined,
         isOwner,
         isUnlocked,
-        canPurchase: box.status === 'PUBLISHED' && !isOwner && !isUnlocked,
+        canPurchase: canUseSimulatedPurchase
+            && box.fulfillmentMode === 'PAID_UNLOCK'
+            && box.status === 'PUBLISHED'
+            && !isOwner
+            && !isUnlocked,
     };
 }
 
@@ -136,6 +153,12 @@ export async function createMarketplaceBox(input: CreateBoxInput, user: CurrentU
         ...input,
         barter_demand: input.accepts_barter ? input.barter_demand : null,
         ...normalizeLivePayload(input),
+        fulfillmentMode: input.fulfillmentMode ?? 'PAID_UNLOCK',
+        problemStatus: input.problemStatus ?? null,
+        sourceType: input.sourceType ?? 'CREATOR',
+        submitterContact: input.submitterContact ?? null,
+        submitterContext: input.submitterContext ?? null,
+        sourceUrl: input.sourceUrl ?? null,
         authorEmail: user.email,
         authorName: user.name ?? null,
         sales_count: 0,
@@ -224,12 +247,12 @@ export async function purchaseMarketplaceBox(params: PurchaseBoxParams, user: Cu
     };
 }
 
-export async function listAdminMarketplaceBoxes(): Promise<MarketplaceBoxSummary[]> {
+export async function listAdminMarketplaceBoxes(): Promise<AdminMarketplaceBoxSummary[]> {
     const boxes = await listBoxes({
         includeDeleted: true,
     });
 
-    return boxes.map(toSummary);
+    return boxes.map(toAdminSummary);
 }
 
 export async function adminUnlistMarketplaceBox(id: string): Promise<MarketplaceBoxDetail> {
@@ -249,4 +272,29 @@ export async function adminUnlistMarketplaceBox(id: string): Promise<Marketplace
     });
 
     return toDetail(updated, false, false);
+}
+
+export async function adminUpdateProblemStatus(
+    id: string,
+    problemStatus: NonNullable<MarketplaceBox['problemStatus']>,
+): Promise<AdminMarketplaceBoxSummary> {
+    const box = await findBoxById(id);
+
+    if (!box || box.deletedAt || box.status === 'DELETED') {
+        throw new AppError('NOT_FOUND', '目标内容不存在。', 404, { id });
+    }
+
+    if (box.fulfillmentMode !== 'FREE_HELP_REQUEST') {
+        throw new AppError('CONFLICT', '只有问题收集器内容可以更新问题状态。', 409, {
+            id,
+            fulfillmentMode: box.fulfillmentMode,
+        });
+    }
+
+    const updated = await updateBox(id, {
+        problemStatus,
+        updatedAt: new Date(),
+    });
+
+    return toAdminSummary(updated);
 }

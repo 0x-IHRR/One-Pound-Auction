@@ -6,9 +6,12 @@ import type {
     ListMarketplaceBoxesQuery,
     MarketplaceBox,
     MarketplaceContentStatus,
+    MarketplaceFulfillmentMode,
     MarketplaceItemType,
     MarketplaceLivePlatform,
     MarketplaceLiveStatus,
+    MarketplaceProblemStatus,
+    MarketplaceSourceType,
     UpdateBoxInput,
 } from '@/features/marketplace/types/box';
 
@@ -28,6 +31,11 @@ type BoxCreateData = CreateBoxInput & {
 type BoxUpdateData = UpdateBoxInput & {
     sales_count?: number;
     status?: MarketplaceContentStatus;
+    fulfillmentMode?: MarketplaceFulfillmentMode;
+    problemStatus?: MarketplaceProblemStatus | null;
+    sourceType?: MarketplaceSourceType;
+    submitterContact?: string | null;
+    submitterContext?: string | null;
     authorEmail?: string | null;
     authorName?: string | null;
     publishedAt?: Date | null;
@@ -63,6 +71,26 @@ function normalizeStatus(value: string): MarketplaceContentStatus {
     return 'PUBLISHED';
 }
 
+function normalizeFulfillmentMode(value: string): MarketplaceFulfillmentMode {
+    return value === 'FREE_HELP_REQUEST' ? 'FREE_HELP_REQUEST' : 'PAID_UNLOCK';
+}
+
+function normalizeProblemStatus(value: string | null | undefined): MarketplaceProblemStatus | null {
+    if (value === 'OPEN' || value === 'IN_PROGRESS' || value === 'SOLVED') {
+        return value;
+    }
+
+    return null;
+}
+
+function normalizeSourceType(value: string | null | undefined): MarketplaceSourceType {
+    if (value === 'SOCIAL_COLLECTOR' || value === 'REDDIT_MANUAL') {
+        return value;
+    }
+
+    return 'CREATOR';
+}
+
 function mapBox(record: {
     id: string;
     itemType: string;
@@ -80,6 +108,12 @@ function mapBox(record: {
     liveUrl: string | null;
     liveStartsAt: Date | null;
     liveStatus: string | null;
+    fulfillmentMode: string;
+    problemStatus: string | null;
+    sourceType: string | null;
+    submitterContact: string | null;
+    submitterContext: string | null;
+    sourceUrl: string | null;
     createdAt: Date;
     updatedAt: Date;
     publishedAt: Date | null;
@@ -97,6 +131,9 @@ function mapBox(record: {
         status: normalizeStatus(record.status),
         livePlatform: normalizeLivePlatform(record.livePlatform),
         liveStatus: normalizeLiveStatus(record.liveStatus),
+        fulfillmentMode: normalizeFulfillmentMode(record.fulfillmentMode),
+        problemStatus: normalizeProblemStatus(record.problemStatus),
+        sourceType: normalizeSourceType(record.sourceType),
     };
 }
 
